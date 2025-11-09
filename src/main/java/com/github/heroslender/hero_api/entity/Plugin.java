@@ -2,6 +2,7 @@ package com.github.heroslender.hero_api.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
 import java.util.Objects;
@@ -10,7 +11,7 @@ import java.util.Objects;
 public class Plugin {
 
     private @Id
-    @GeneratedValue Long id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY) Long id;
     private String name;
 
     public Plugin() {
