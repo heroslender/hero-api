@@ -1,10 +1,9 @@
 package com.github.heroslender.hero_api.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -14,10 +13,18 @@ public class Plugin {
     @GeneratedValue(strategy = GenerationType.IDENTITY) Long id;
     private String name;
 
+    @OneToMany(mappedBy = "plugin", fetch = FetchType.LAZY)
+    private List<PluginVersion> versions = new ArrayList<>();
+
     public Plugin() {
     }
 
     public Plugin(String name) {
+        this.name = name;
+    }
+
+    public Plugin(Long id, String name) {
+        this.id = id;
         this.name = name;
     }
 
@@ -51,5 +58,13 @@ public class Plugin {
                 "id=" + id +
                 ", name='" + name + '\'' +
                 '}';
+    }
+
+    public List<PluginVersion> getVersions() {
+        return versions;
+    }
+
+    public void setVersions(List<PluginVersion> versions) {
+        this.versions = versions;
     }
 }
