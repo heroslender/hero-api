@@ -1,14 +1,18 @@
 package com.github.heroslender.hero_api.controller;
 
 import com.github.heroslender.hero_api.dto.NewPluginVersionDto;
-import com.github.heroslender.hero_api.dto.PluginDTO;
 import com.github.heroslender.hero_api.dto.PluginVersionDTO;
+import com.github.heroslender.hero_api.exceptions.PluginVersionNotFoundException;
 import com.github.heroslender.hero_api.hateoas.PluginVersionDTOAssembler;
+import com.github.heroslender.hero_api.security.RequireAdmin;
 import com.github.heroslender.hero_api.service.PluginService;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.IanaLinkRelations;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/plugins/{pluginId}/versions")
@@ -22,24 +26,26 @@ public class PluginVersionController {
     }
 
     @GetMapping
-    public String versions(@PathVariable String pluginId) {
-        return "Versions";
+    public CollectionModel<EntityModel<PluginVersionDTO>> versions(@PathVariable long pluginId) {
+        List<PluginVersionDTO> versions = service.getVersions(pluginId);
+
+        return pluginVersionAssembler.toCollectionModel(versions);
     }
 
     @GetMapping("/{version}")
-    public String version(@PathVariable String pluginId, @PathVariable String version) {
-        return pluginId + ": " + version;
+    public EntityModel<PluginVersionDTO> version(@PathVariable long pluginId, @PathVariable String version) {
+        PluginVersionDTO ver = service.getVersion(pluginId, version);
+
+        return pluginVersionAssembler.toModel(ver);
     }
 
     @PostMapping("/{version}")
+    @RequireAdmin
     public ResponseEntity<Object> addVersion(@PathVariable Long pluginId, @PathVariable String version, @RequestBody NewPluginVersionDto newVersion) {
-        PluginDTO plugin = service.getPlugin(pluginId)
-                .orElseThrow(() -> new PluginNotFoundException(pluginId));
-
-        for (PluginVersionDTO ver : service.getVersions(plugin)) {
-            if (ver.tag().equals(version)) {
-                throw new RuntimeException("Plugin already has that version");
-            }
+        try {
+            service.getVersion(pluginId, version);
+            throw new RuntimeException("Plugin already has that version");
+        } catch (PluginVersionNotFoundException ignored) { // Version does not exist
         }
 
         PluginVersionDTO pluginVersion = new PluginVersionDTO(
@@ -51,13 +57,19 @@ public class PluginVersionController {
                 0
         );
 
-
-        PluginVersionDTO saved = service.addVersion(plugin, pluginVersion);
-
+        PluginVersionDTO saved = service.addVersion(pluginId, pluginVersion);
         EntityModel<PluginVersionDTO> entityModel = pluginVersionAssembler.toModel(saved);
 
         return ResponseEntity
                 .created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri())
                 .body(entityModel);
+    }
+
+    @DeleteMapping("/{version}")
+    @RequireAdmin
+    public ResponseEntity<Void> delete(@PathVariable Long version) {
+        service.deleteVersion(version);
+
+        return ResponseEntity.noContent().build();
     }
 }

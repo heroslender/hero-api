@@ -1,6 +1,7 @@
 package com.github.heroslender.hero_api.controller;
 
 import com.github.heroslender.hero_api.dto.PluginDTO;
+import com.github.heroslender.hero_api.exceptions.PluginNotFoundException;
 import com.github.heroslender.hero_api.hateoas.PluginAssembler;
 import com.github.heroslender.hero_api.security.RequireAdmin;
 import com.github.heroslender.hero_api.service.PluginService;
@@ -58,7 +59,7 @@ public class PluginController {
 
     @DeleteMapping("/plugins/{id}")
     @RequireAdmin
-    public ResponseEntity<Object> deletePlugin(@PathVariable Long id) {
+    public ResponseEntity<Void> deletePlugin(@PathVariable Long id) {
         service.delete(id);
 
         return ResponseEntity.noContent().build();

@@ -1,10 +1,12 @@
 package com.github.heroslender.hero_api.service;
 
+import com.github.heroslender.hero_api.exceptions.PluginNotFoundException;
 import com.github.heroslender.hero_api.dto.PluginDTO;
 import com.github.heroslender.hero_api.dto.PluginDtoMapper;
 import com.github.heroslender.hero_api.dto.PluginVersionDTO;
 import com.github.heroslender.hero_api.entity.Plugin;
 import com.github.heroslender.hero_api.entity.PluginVersion;
+import com.github.heroslender.hero_api.exceptions.PluginVersionNotFoundException;
 import com.github.heroslender.hero_api.repository.PluginRepository;
 import com.github.heroslender.hero_api.repository.PluginVersionRepository;
 import org.springframework.stereotype.Service;
@@ -36,7 +38,9 @@ public class PluginService {
         return PluginDtoMapper.toDto(pl);
     }
 
-    public PluginVersionDTO addVersion(PluginDTO plugin, PluginVersionDTO pluginVersion) {
+    public PluginVersionDTO addVersion(long pluginId, PluginVersionDTO pluginVersion) {
+        PluginDTO plugin = getPlugin(pluginId).orElseThrow(() -> new PluginNotFoundException(pluginId));
+
         PluginVersion saved = pluginVersionRepository.save(PluginDtoMapper.fromDto(pluginVersion, plugin));
         return PluginDtoMapper.toDto(saved);
     }
@@ -45,10 +49,25 @@ public class PluginService {
         pluginRepository.deleteById(id);
     }
 
-    public List<PluginVersionDTO> getVersions(PluginDTO plugin) {
-        return pluginRepository.findById(plugin.id())
-                .map(Plugin::getVersions)
-                .map(ver -> ver.stream().map(PluginDtoMapper::toDto).toList())
-                .get();
+    public List<PluginVersionDTO> getVersions(long pluginId) {
+        Plugin pl = pluginRepository.findById(pluginId).orElseThrow(() -> new PluginNotFoundException(pluginId));
+
+        return pl.getVersions().stream().map(PluginDtoMapper::toDto).toList();
+    }
+
+    public PluginVersionDTO getVersion(long pluginId, String versionTag) {
+        List<PluginVersionDTO> versions = getVersions(pluginId);
+
+        for (PluginVersionDTO version : versions) {
+            if (version.tag().equals(versionTag)) {
+                return version;
+            }
+        }
+
+        throw new PluginVersionNotFoundException(versionTag);
+    }
+
+    public void deleteVersion(Long version) {
+        pluginVersionRepository.deleteById(version);
     }
 }
