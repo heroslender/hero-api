@@ -2,6 +2,7 @@ package com.github.heroslender.hero_api.controller;
 
 import com.github.heroslender.hero_api.dto.NewPluginVersionDto;
 import com.github.heroslender.hero_api.dto.PluginVersionDTO;
+import com.github.heroslender.hero_api.exceptions.DuplicatePluginVersionException;
 import com.github.heroslender.hero_api.exceptions.PluginVersionNotFoundException;
 import com.github.heroslender.hero_api.hateoas.PluginVersionAssembler;
 import com.github.heroslender.hero_api.security.RequireAdmin;
@@ -44,7 +45,7 @@ public class PluginVersionController {
     public ResponseEntity<Object> addVersion(@PathVariable Long pluginId, @PathVariable String version, @RequestBody NewPluginVersionDto newVersion) {
         try {
             service.getVersion(pluginId, version);
-            throw new RuntimeException("Plugin already has that version");
+            throw new DuplicatePluginVersionException(version);
         } catch (PluginVersionNotFoundException ignored) { // Version does not exist
         }
 

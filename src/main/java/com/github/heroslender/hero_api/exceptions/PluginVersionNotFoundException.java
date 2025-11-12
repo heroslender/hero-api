@@ -1,8 +1,8 @@
 package com.github.heroslender.hero_api.exceptions;
 
-public class PluginVersionNotFoundException extends RuntimeException {
+public class PluginVersionNotFoundException extends ResourceNotFoundException {
 
-  public PluginVersionNotFoundException(String id) {
-    super("Could not find plugin version with tag " + id);
-  }
+    public PluginVersionNotFoundException(String tag) {
+        super("Could not find plugin version with tag '" + tag + "'");
+    }
 }
