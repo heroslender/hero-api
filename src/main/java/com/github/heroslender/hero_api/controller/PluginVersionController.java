@@ -3,7 +3,7 @@ package com.github.heroslender.hero_api.controller;
 import com.github.heroslender.hero_api.dto.NewPluginVersionDto;
 import com.github.heroslender.hero_api.dto.PluginVersionDTO;
 import com.github.heroslender.hero_api.exceptions.PluginVersionNotFoundException;
-import com.github.heroslender.hero_api.hateoas.PluginVersionDTOAssembler;
+import com.github.heroslender.hero_api.hateoas.PluginVersionAssembler;
 import com.github.heroslender.hero_api.security.RequireAdmin;
 import com.github.heroslender.hero_api.service.PluginService;
 import org.springframework.hateoas.CollectionModel;
@@ -18,9 +18,9 @@ import java.util.List;
 @RequestMapping("/plugins/{pluginId}/versions")
 public class PluginVersionController {
     private final PluginService service;
-    private final PluginVersionDTOAssembler pluginVersionAssembler;
+    private final PluginVersionAssembler pluginVersionAssembler;
 
-    public PluginVersionController(PluginService service, PluginVersionDTOAssembler pluginVersionAssembler) {
+    public PluginVersionController(PluginService service, PluginVersionAssembler pluginVersionAssembler) {
         this.service = service;
         this.pluginVersionAssembler = pluginVersionAssembler;
     }
@@ -49,6 +49,7 @@ public class PluginVersionController {
         }
 
         PluginVersionDTO pluginVersion = new PluginVersionDTO(
+                pluginId,
                 version,
                 System.currentTimeMillis(),
                 newVersion.releaseTitle(),

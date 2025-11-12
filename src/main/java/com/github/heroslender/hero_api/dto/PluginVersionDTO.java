@@ -5,6 +5,7 @@ import org.springframework.hateoas.server.core.Relation;
 @Relation(collectionRelation = "versions", itemRelation = "version")
 public record PluginVersionDTO(
         Long id,
+        Long pluginId,
         String tag,
         long releasedAt,
         String releaseTitle,
@@ -12,7 +13,7 @@ public record PluginVersionDTO(
         String downloadUrl,
         int downloadCount
 ) {
-    public PluginVersionDTO(String tag, long releasedAt, String releaseTitle, String releaseNotes, String downloadUrl, int downloadCount) {
-        this(null, tag, releasedAt, releaseTitle, releaseNotes, downloadUrl, downloadCount);
+    public PluginVersionDTO(Long pluginId,String tag, long releasedAt, String releaseTitle, String releaseNotes, String downloadUrl, int downloadCount) {
+        this(null, pluginId, tag, releasedAt, releaseTitle, releaseNotes, downloadUrl, downloadCount);
     }
 }

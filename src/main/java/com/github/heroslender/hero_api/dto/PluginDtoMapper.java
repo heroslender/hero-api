@@ -24,6 +24,7 @@ public class PluginDtoMapper {
     public static PluginVersionDTO toDto(PluginVersion version) {
         return new PluginVersionDTO(
                 version.getId(),
+                version.getPlugin().getId(),
                 version.getTag(),
                 version.getReleasedAt(),
                 version.getReleaseTitle(),

@@ -1,6 +1,7 @@
 package com.github.heroslender.hero_api.hateoas;
 
 import com.github.heroslender.hero_api.controller.PluginController;
+import com.github.heroslender.hero_api.controller.PluginVersionController;
 import com.github.heroslender.hero_api.dto.PluginVersionDTO;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
@@ -15,13 +16,14 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Component
-public class PluginVersionDTOAssembler implements RepresentationModelAssembler<PluginVersionDTO, EntityModel<PluginVersionDTO>> {
+public class PluginVersionAssembler implements RepresentationModelAssembler<PluginVersionDTO, EntityModel<PluginVersionDTO>> {
 
     @Override
     public EntityModel<PluginVersionDTO> toModel(PluginVersionDTO entity) {
         return EntityModel.of(entity,
-                linkTo(methodOn(PluginController.class).one(entity.id())).withSelfRel(),
-                linkTo(methodOn(PluginController.class).all()).withRel("plugins")
+                linkTo(methodOn(PluginVersionController.class).version(entity.pluginId(), entity.tag())).withSelfRel(),
+                linkTo(methodOn(PluginVersionController.class).versions(entity.pluginId())).withRel("versions"),
+                linkTo(methodOn(PluginController.class).one(entity.pluginId())).withRel("plugin")
         );
     }
 
