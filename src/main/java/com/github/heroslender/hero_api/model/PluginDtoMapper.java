@@ -1,28 +1,28 @@
-package com.github.heroslender.hero_api.dto;
+package com.github.heroslender.hero_api.model;
 
-import com.github.heroslender.hero_api.entity.Plugin;
-import com.github.heroslender.hero_api.entity.PluginVersion;
+import com.github.heroslender.hero_api.database.entity.PluginEntity;
+import com.github.heroslender.hero_api.database.entity.PluginVersionEntity;
 
 public class PluginDtoMapper {
     private PluginDtoMapper() {
     }
 
-    public static PluginDTO toDto(Plugin plugin) {
-        return new PluginDTO(
+    public static Plugin toDto(PluginEntity plugin) {
+        return new Plugin(
                 plugin.getId(),
                 plugin.getName()
         );
     }
 
-    public static Plugin fromDto(PluginDTO dto) {
-        return new Plugin(
+    public static PluginEntity fromDto(Plugin dto) {
+        return new PluginEntity(
                 dto.id(),
                 dto.name()
         );
     }
 
-    public static PluginVersionDTO toDto(PluginVersion version) {
-        return new PluginVersionDTO(
+    public static PluginVersion toDto(PluginVersionEntity version) {
+        return new PluginVersion(
                 version.getId(),
                 version.getPlugin().getId(),
                 version.getTag(),
@@ -34,8 +34,8 @@ public class PluginDtoMapper {
         );
     }
 
-    public static PluginVersion fromDto(PluginVersionDTO dto, PluginDTO plugin) {
-        return new PluginVersion(
+    public static PluginVersionEntity fromDto(PluginVersion dto, Plugin plugin) {
+        return new PluginVersionEntity(
                 dto.id(),
                 fromDto(plugin),
                 dto.tag(),

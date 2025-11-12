@@ -1,14 +1,14 @@
 package com.github.heroslender.hero_api.service;
 
 import com.github.heroslender.hero_api.exceptions.PluginNotFoundException;
-import com.github.heroslender.hero_api.dto.PluginDTO;
-import com.github.heroslender.hero_api.dto.PluginDtoMapper;
-import com.github.heroslender.hero_api.dto.PluginVersionDTO;
-import com.github.heroslender.hero_api.entity.Plugin;
-import com.github.heroslender.hero_api.entity.PluginVersion;
+import com.github.heroslender.hero_api.model.Plugin;
+import com.github.heroslender.hero_api.model.PluginDtoMapper;
+import com.github.heroslender.hero_api.model.PluginVersion;
+import com.github.heroslender.hero_api.database.entity.PluginEntity;
+import com.github.heroslender.hero_api.database.entity.PluginVersionEntity;
 import com.github.heroslender.hero_api.exceptions.PluginVersionNotFoundException;
-import com.github.heroslender.hero_api.repository.PluginRepository;
-import com.github.heroslender.hero_api.repository.PluginVersionRepository;
+import com.github.heroslender.hero_api.database.repository.PluginRepository;
+import com.github.heroslender.hero_api.database.repository.PluginVersionRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,24 +24,24 @@ public class PluginService {
         this.pluginVersionRepository = pluginVersionRepository;
     }
 
-    public List<PluginDTO> getPlugins() {
+    public List<Plugin> getPlugins() {
         return pluginRepository.findAll().stream().map(PluginDtoMapper::toDto).toList();
     }
 
-    public Optional<PluginDTO> getPlugin(long id) {
+    public Optional<Plugin> getPlugin(long id) {
         return pluginRepository.findById(id).map(PluginDtoMapper::toDto);
     }
 
-    public PluginDTO save(PluginDTO plugin) {
-        Plugin pl = pluginRepository.save(PluginDtoMapper.fromDto(plugin));
+    public Plugin save(Plugin plugin) {
+        PluginEntity pl = pluginRepository.save(PluginDtoMapper.fromDto(plugin));
 
         return PluginDtoMapper.toDto(pl);
     }
 
-    public PluginVersionDTO addVersion(long pluginId, PluginVersionDTO pluginVersion) {
-        PluginDTO plugin = getPlugin(pluginId).orElseThrow(() -> new PluginNotFoundException(pluginId));
+    public PluginVersion addVersion(long pluginId, PluginVersion pluginVersion) {
+        Plugin plugin = getPlugin(pluginId).orElseThrow(() -> new PluginNotFoundException(pluginId));
 
-        PluginVersion saved = pluginVersionRepository.save(PluginDtoMapper.fromDto(pluginVersion, plugin));
+        PluginVersionEntity saved = pluginVersionRepository.save(PluginDtoMapper.fromDto(pluginVersion, plugin));
         return PluginDtoMapper.toDto(saved);
     }
 
@@ -49,16 +49,16 @@ public class PluginService {
         pluginRepository.deleteById(id);
     }
 
-    public List<PluginVersionDTO> getVersions(long pluginId) {
-        Plugin pl = pluginRepository.findById(pluginId).orElseThrow(() -> new PluginNotFoundException(pluginId));
+    public List<PluginVersion> getVersions(long pluginId) {
+        PluginEntity pl = pluginRepository.findById(pluginId).orElseThrow(() -> new PluginNotFoundException(pluginId));
 
         return pl.getVersions().stream().map(PluginDtoMapper::toDto).toList();
     }
 
-    public PluginVersionDTO getVersion(long pluginId, String versionTag) {
-        List<PluginVersionDTO> versions = getVersions(pluginId);
+    public PluginVersion getVersion(long pluginId, String versionTag) {
+        List<PluginVersion> versions = getVersions(pluginId);
 
-        for (PluginVersionDTO version : versions) {
+        for (PluginVersion version : versions) {
             if (version.tag().equals(versionTag)) {
                 return version;
             }

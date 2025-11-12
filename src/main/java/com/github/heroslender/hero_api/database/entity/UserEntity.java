@@ -1,4 +1,4 @@
-package com.github.heroslender.hero_api.entity;
+package com.github.heroslender.hero_api.database.entity;
 
 import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Entity(name = "users")
-public class User implements UserDetails {
+public class UserEntity implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -19,16 +19,16 @@ public class User implements UserDetails {
     private String email;
     private String password;
 
-    @ElementCollection(targetClass = Role.class, fetch = FetchType.EAGER)
+    @ElementCollection(targetClass = UserRole.class, fetch = FetchType.EAGER)
     @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"))
     @Column(name = "role", nullable = false)
     @Enumerated(EnumType.STRING)
-    private List<Role> roles = new ArrayList<>();
+    private List<UserRole> roles = new ArrayList<>();
 
-    public User() {
+    public UserEntity() {
     }
 
-    public User(String username, String email, String password, List<Role> roles) {
+    public UserEntity(String username, String email, String password, List<UserRole> roles) {
         this.username = username;
         this.email = email;
         this.password = password;
@@ -69,7 +69,7 @@ public class User implements UserDetails {
     }
 
     public boolean hasRole(String role) {
-        for (Role r : getRoles()) {
+        for (UserRole r : getRoles()) {
             if (r.getName().equals(role)) {
                 return true;
             }
@@ -86,18 +86,18 @@ public class User implements UserDetails {
         this.password = password;
     }
 
-    public List<Role> getRoles() {
+    public List<UserRole> getRoles() {
         return roles;
     }
 
-    public void setRoles(List<Role> roles) {
+    public void setRoles(List<UserRole> roles) {
         this.roles = roles;
     }
 
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
-        User user = (User) o;
+        UserEntity user = (UserEntity) o;
         return Objects.equals(getId(), user.getId()) && Objects.equals(getUsername(), user.getUsername()) && Objects.equals(getEmail(), user.getEmail()) && Objects.equals(getRoles(), user.getRoles());
     }
 

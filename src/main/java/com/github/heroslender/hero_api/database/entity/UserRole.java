@@ -1,12 +1,12 @@
-package com.github.heroslender.hero_api.entity;
+package com.github.heroslender.hero_api.database.entity;
 
-public enum Role {
+public enum UserRole {
     USER("USER"),
     ADMIN("ADMIN");
 
     private final String role;
 
-    Role(String role) {
+    UserRole(String role) {
         this.role = role;
     }
 

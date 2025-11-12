@@ -3,7 +3,7 @@ package com.github.heroslender.hero_api.controller;
 import com.github.heroslender.hero_api.dto.AuthenticationDTO;
 import com.github.heroslender.hero_api.dto.LoginResponseDTO;
 import com.github.heroslender.hero_api.dto.RegistrationDTO;
-import com.github.heroslender.hero_api.entity.User;
+import com.github.heroslender.hero_api.database.entity.UserEntity;
 import com.github.heroslender.hero_api.security.RequireAdmin;
 import com.github.heroslender.hero_api.security.TokenService;
 import com.github.heroslender.hero_api.service.UserService;
@@ -36,7 +36,7 @@ public class AuthController {
         UsernamePasswordAuthenticationToken usernamePassword = new UsernamePasswordAuthenticationToken(data.login(), data.password());
         Authentication auth = authenticationManager.authenticate(usernamePassword);
 
-        var token = tokenService.generateToken((User) auth.getPrincipal());
+        var token = tokenService.generateToken((UserEntity) auth.getPrincipal());
 
         return ResponseEntity.ok(new LoginResponseDTO(token));
     }
@@ -44,7 +44,7 @@ public class AuthController {
     @PostMapping("/register")
     @RequireAdmin
     public ResponseEntity<Void> register(@RequestBody @Valid RegistrationDTO data) {
-        User user = userService.getUser(data.username());
+        UserEntity user = userService.getUser(data.username());
         if (user != null) {
             return ResponseEntity.badRequest().build();
         }

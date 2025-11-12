@@ -1,18 +1,18 @@
-package com.github.heroslender.hero_api.entity;
+package com.github.heroslender.hero_api.database.entity;
 
 import jakarta.persistence.*;
 
 import java.util.Objects;
 
 @Entity
-public class PluginVersion {
+public class PluginVersionEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "plugin_id")
-    private Plugin plugin;
+    private PluginEntity plugin;
     private String tag;
     private Long releasedAt;
     private String releaseTitle;
@@ -20,18 +20,18 @@ public class PluginVersion {
     private String downloadUrl;
     private Integer downloadCount;
 
-    public Plugin getPlugin() {
+    public PluginEntity getPlugin() {
         return plugin;
     }
 
-    public void setPlugin(Plugin plugin) {
+    public void setPlugin(PluginEntity plugin) {
         this.plugin = plugin;
     }
 
-    public PluginVersion() {
+    public PluginVersionEntity() {
     }
 
-    public PluginVersion(Plugin plugin, String tag, Long releasedAt, String releaseTitle, String releaseNotes, String downloadUrl, Integer downloadCount) {
+    public PluginVersionEntity(PluginEntity plugin, String tag, Long releasedAt, String releaseTitle, String releaseNotes, String downloadUrl, Integer downloadCount) {
         this.plugin = plugin;
         this.tag = tag;
         this.releasedAt = releasedAt;
@@ -41,7 +41,7 @@ public class PluginVersion {
         this.downloadCount = downloadCount;
     }
 
-    public PluginVersion(Long id, Plugin plugin, String tag, Long releasedAt, String releaseTitle, String releaseNotes, String downloadUrl, Integer downloadCount) {
+    public PluginVersionEntity(Long id, PluginEntity plugin, String tag, Long releasedAt, String releaseTitle, String releaseNotes, String downloadUrl, Integer downloadCount) {
         this.id = id;
         this.plugin = plugin;
         this.tag = tag;
@@ -107,7 +107,7 @@ public class PluginVersion {
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
-        PluginVersion that = (PluginVersion) o;
+        PluginVersionEntity that = (PluginVersionEntity) o;
         return Objects.equals(getId(), that.getId()) && Objects.equals(getTag(), that.getTag()) && Objects.equals(getReleasedAt(), that.getReleasedAt()) && Objects.equals(getReleaseTitle(), that.getReleaseTitle()) && Objects.equals(getReleaseNotes(), that.getReleaseNotes()) && Objects.equals(getDownloadUrl(), that.getDownloadUrl()) && Objects.equals(getDownloadCount(), that.getDownloadCount());
     }
 

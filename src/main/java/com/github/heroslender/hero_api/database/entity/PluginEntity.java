@@ -1,4 +1,4 @@
-package com.github.heroslender.hero_api.entity;
+package com.github.heroslender.hero_api.database.entity;
 
 import jakarta.persistence.*;
 
@@ -7,23 +7,23 @@ import java.util.List;
 import java.util.Objects;
 
 @Entity
-public class Plugin {
+public class PluginEntity {
 
     private @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) Long id;
     private String name;
 
     @OneToMany(mappedBy = "plugin", fetch = FetchType.LAZY)
-    private List<PluginVersion> versions = new ArrayList<>();
+    private List<PluginVersionEntity> versions = new ArrayList<>();
 
-    public Plugin() {
+    public PluginEntity() {
     }
 
-    public Plugin(String name) {
+    public PluginEntity(String name) {
         this.name = name;
     }
 
-    public Plugin(Long id, String name) {
+    public PluginEntity(Long id, String name) {
         this.id = id;
         this.name = name;
     }
@@ -43,7 +43,7 @@ public class Plugin {
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
-        Plugin plugin = (Plugin) o;
+        PluginEntity plugin = (PluginEntity) o;
         return Objects.equals(getId(), plugin.getId()) && Objects.equals(getName(), plugin.getName());
     }
 
@@ -60,11 +60,11 @@ public class Plugin {
                 '}';
     }
 
-    public List<PluginVersion> getVersions() {
+    public List<PluginVersionEntity> getVersions() {
         return versions;
     }
 
-    public void setVersions(List<PluginVersion> versions) {
+    public void setVersions(List<PluginVersionEntity> versions) {
         this.versions = versions;
     }
 }
