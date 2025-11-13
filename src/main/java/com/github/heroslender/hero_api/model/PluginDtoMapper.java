@@ -10,6 +10,7 @@ public class PluginDtoMapper {
     public static Plugin toDto(PluginEntity plugin) {
         return new Plugin(
                 plugin.getName(),
+                plugin.getOwner().getId(),
                 plugin.getDisplayName(),
                 plugin.getDescrition()
         );

@@ -24,6 +24,12 @@ class ExceptionHandlerAdvice {
         return toDto(ex);
     }
 
+    @ExceptionHandler(UnauthorizedException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    ApiExceptionDTO unauthorizedHandler(UnauthorizedException ex) {
+        return toDto(ex);
+    }
+
     private ApiExceptionDTO toDto(RestApiExcetion ex) {
         return new ApiExceptionDTO(
                 ex.getStatusCode(),

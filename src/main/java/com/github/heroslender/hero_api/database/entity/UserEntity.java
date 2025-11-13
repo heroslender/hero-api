@@ -68,14 +68,12 @@ public class UserEntity implements UserDetails {
         return authorities;
     }
 
-    public boolean hasRole(String role) {
-        for (UserRole r : getRoles()) {
-            if (r.getName().equals(role)) {
-                return true;
-            }
-        }
+    public boolean hasRole(UserRole role) {
+        return getRoles().contains(role);
+    }
 
-        return false;
+    public boolean hasRole(String role) {
+        return hasRole(UserRole.valueOf(role));
     }
 
     public String getPassword() {

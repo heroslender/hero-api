@@ -1,5 +1,6 @@
 package com.github.heroslender.hero_api.service;
 
+import com.github.heroslender.hero_api.database.entity.UserEntity;
 import com.github.heroslender.hero_api.exceptions.PluginNotFoundException;
 import com.github.heroslender.hero_api.model.Plugin;
 import com.github.heroslender.hero_api.model.PluginDtoMapper;
@@ -32,8 +33,10 @@ public class PluginService {
         return pluginRepository.findByName(id).map(PluginDtoMapper::toDto);
     }
 
-    public Plugin save(Plugin plugin) {
-        PluginEntity pl = pluginRepository.save(PluginDtoMapper.fromDto(plugin));
+    public Plugin save(Plugin plugin, UserEntity owner) {
+        PluginEntity entity = PluginDtoMapper.fromDto(plugin);
+        entity.setOwner(owner);
+        PluginEntity pl = pluginRepository.save(entity);
 
         return PluginDtoMapper.toDto(pl);
     }

@@ -1,14 +1,18 @@
 package com.github.heroslender.hero_api.controller;
 
+import com.github.heroslender.hero_api.database.entity.UserEntity;
+import com.github.heroslender.hero_api.dto.NewPluginDto;
 import com.github.heroslender.hero_api.model.Plugin;
 import com.github.heroslender.hero_api.exceptions.PluginNotFoundException;
 import com.github.heroslender.hero_api.controller.hateoas.PluginAssembler;
 import com.github.heroslender.hero_api.security.RequireAdmin;
+import com.github.heroslender.hero_api.security.RequireUser;
 import com.github.heroslender.hero_api.service.PluginService;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.IanaLinkRelations;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -28,9 +32,18 @@ public class PluginController {
 
 
     @PostMapping("/plugins")
-    @RequireAdmin
-    public ResponseEntity<EntityModel<Plugin>> newPlugin(@RequestBody Plugin newPlugin) {
-        EntityModel<Plugin> entityModel = assembler.toModel(service.save(newPlugin));
+    @RequireUser
+    public ResponseEntity<EntityModel<Plugin>> newPlugin(
+            @AuthenticationPrincipal UserEntity user,
+            @RequestBody NewPluginDto newPlugin
+    ) {
+        Plugin plugin = new Plugin(
+                newPlugin.name(),
+                user.getId(),
+                newPlugin.displayName(),
+                newPlugin.description()
+        );
+        EntityModel<Plugin> entityModel = assembler.toModel(service.save(plugin, user));
 
         return ResponseEntity
                 .created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri())
@@ -47,8 +60,12 @@ public class PluginController {
 
     @PutMapping("/plugins/{id}")
     @RequireAdmin
-    public ResponseEntity<EntityModel<Plugin>> replacePlugin(@RequestBody Plugin newPlugin, @PathVariable String id) {
-        Plugin updatedPlugin = service.save(newPlugin);
+    public ResponseEntity<EntityModel<Plugin>> replacePlugin(
+            @AuthenticationPrincipal UserEntity user,
+            @RequestBody Plugin newPlugin,
+            @PathVariable String id
+    ) {
+        Plugin updatedPlugin = service.save(newPlugin, user);
 
         EntityModel<Plugin> entityModel = assembler.toModel(updatedPlugin);
 

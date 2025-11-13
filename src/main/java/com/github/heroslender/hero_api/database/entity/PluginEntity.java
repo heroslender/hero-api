@@ -10,6 +10,9 @@ import java.util.Objects;
 public class PluginEntity {
     @Id
     private String name;
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "owner_id", referencedColumnName = "id", unique = false)
+    private UserEntity owner;
     private String displayName;
     private String descrition;
 
@@ -31,6 +34,14 @@ public class PluginEntity {
 
     public String getName() {
         return name;
+    }
+
+    public UserEntity getOwner() {
+        return owner;
+    }
+
+    public void setOwner(UserEntity owner) {
+        this.owner = owner;
     }
 
     public String getDisplayName() {
