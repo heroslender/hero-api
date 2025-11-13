@@ -7,4 +7,7 @@ import java.util.Optional;
 
 public interface PluginRepository extends JpaRepository<PluginEntity, Long> {
     Optional<PluginEntity> findByName(String name);
+
+    void deleteByName(String name);
+
 }

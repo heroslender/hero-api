@@ -28,8 +28,8 @@ public class PluginService {
         return pluginRepository.findAll().stream().map(PluginDtoMapper::toDto).toList();
     }
 
-    public Optional<Plugin> getPlugin(long id) {
-        return pluginRepository.findById(id).map(PluginDtoMapper::toDto);
+    public Optional<Plugin> getPlugin(String id) {
+        return pluginRepository.findByName(id).map(PluginDtoMapper::toDto);
     }
 
     public Plugin save(Plugin plugin) {
@@ -38,24 +38,24 @@ public class PluginService {
         return PluginDtoMapper.toDto(pl);
     }
 
-    public PluginVersion addVersion(long pluginId, PluginVersion pluginVersion) {
+    public PluginVersion addVersion(String pluginId, PluginVersion pluginVersion) {
         Plugin plugin = getPlugin(pluginId).orElseThrow(() -> new PluginNotFoundException(pluginId));
 
         PluginVersionEntity saved = pluginVersionRepository.save(PluginDtoMapper.fromDto(pluginVersion, plugin));
         return PluginDtoMapper.toDto(saved);
     }
 
-    public void delete(Long id) {
-        pluginRepository.deleteById(id);
+    public void delete(String id) {
+        pluginRepository.deleteByName(id);
     }
 
-    public List<PluginVersion> getVersions(long pluginId) {
-        PluginEntity pl = pluginRepository.findById(pluginId).orElseThrow(() -> new PluginNotFoundException(pluginId));
+    public List<PluginVersion> getVersions(String pluginId) {
+        PluginEntity pl = pluginRepository.findByName(pluginId).orElseThrow(() -> new PluginNotFoundException(pluginId));
 
         return pl.getVersions().stream().map(PluginDtoMapper::toDto).toList();
     }
 
-    public PluginVersion getVersion(long pluginId, String versionTag) {
+    public PluginVersion getVersion(String pluginId, String versionTag) {
         List<PluginVersion> versions = getVersions(pluginId);
 
         for (PluginVersion version : versions) {
@@ -67,7 +67,7 @@ public class PluginService {
         throw new PluginVersionNotFoundException(versionTag);
     }
 
-    public void deleteVersion(Long version) {
+    public void deleteVersion(long version) {
         pluginVersionRepository.deleteById(version);
     }
 }

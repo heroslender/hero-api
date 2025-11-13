@@ -38,7 +38,7 @@ public class PluginController {
     }
 
     @GetMapping("/plugins/{id}")
-    public EntityModel<Plugin> plugin(@PathVariable Long id) {
+    public EntityModel<Plugin> plugin(@PathVariable String id) {
         Plugin plugin = service.getPlugin(id)
                 .orElseThrow(() -> new PluginNotFoundException(id));
 
@@ -47,7 +47,7 @@ public class PluginController {
 
     @PutMapping("/plugins/{id}")
     @RequireAdmin
-    public ResponseEntity<EntityModel<Plugin>> replacePlugin(@RequestBody Plugin newPlugin, @PathVariable Long id) {
+    public ResponseEntity<EntityModel<Plugin>> replacePlugin(@RequestBody Plugin newPlugin, @PathVariable String id) {
         Plugin updatedPlugin = service.save(newPlugin);
 
         EntityModel<Plugin> entityModel = assembler.toModel(updatedPlugin);
@@ -59,7 +59,7 @@ public class PluginController {
 
     @DeleteMapping("/plugins/{id}")
     @RequireAdmin
-    public ResponseEntity<Void> deletePlugin(@PathVariable Long id) {
+    public ResponseEntity<Void> deletePlugin(@PathVariable String id) {
         service.delete(id);
 
         return ResponseEntity.noContent().build();

@@ -18,7 +18,7 @@ public class PluginAssembler implements RepresentationModelAssembler<Plugin, Ent
     @Override
     public EntityModel<Plugin> toModel(Plugin entity) {
         return EntityModel.of(entity,
-                linkTo(methodOn(PluginController.class).plugin(entity.id())).withSelfRel(),
+                linkTo(methodOn(PluginController.class).plugin(entity.name())).withSelfRel(),
                 linkTo(methodOn(PluginController.class).plugins()).withRel("plugins")
         );
     }

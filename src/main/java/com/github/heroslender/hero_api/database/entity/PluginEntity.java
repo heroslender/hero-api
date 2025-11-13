@@ -8,10 +8,10 @@ import java.util.Objects;
 
 @Entity
 public class PluginEntity {
-
-    private @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) Long id;
+    @Id
     private String name;
+    private String displayName;
+    private String descrition;
 
     @OneToMany(mappedBy = "plugin", fetch = FetchType.LAZY)
     private List<PluginVersionEntity> versions = new ArrayList<>();
@@ -20,44 +20,33 @@ public class PluginEntity {
     }
 
     public PluginEntity(String name) {
-        this.name = name;
+        this(name, name, null);
     }
 
-    public PluginEntity(Long id, String name) {
-        this.id = id;
+    public PluginEntity(String name, String displayName, String descrition) {
         this.name = name;
-    }
-
-    public Long getId() {
-        return id;
+        this.displayName = displayName;
+        this.descrition = descrition;
     }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public String getDisplayName() {
+        return displayName;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        PluginEntity plugin = (PluginEntity) o;
-        return Objects.equals(getId(), plugin.getId()) && Objects.equals(getName(), plugin.getName());
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(getId(), getName());
+    public String getDescrition() {
+        return descrition;
     }
 
-    @Override
-    public String toString() {
-        return "Plugin{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                '}';
+    public void setDescrition(String descrition) {
+        this.descrition = descrition;
     }
 
     public List<PluginVersionEntity> getVersions() {
@@ -66,5 +55,26 @@ public class PluginEntity {
 
     public void setVersions(List<PluginVersionEntity> versions) {
         this.versions = versions;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        PluginEntity that = (PluginEntity) o;
+        return Objects.equals(getName(), that.getName()) && Objects.equals(getDisplayName(), that.getDisplayName()) && Objects.equals(getDescrition(), that.getDescrition());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getName(), getDisplayName(), getDescrition());
+    }
+
+    @Override
+    public String toString() {
+        return "PluginEntity{" +
+                "name='" + name + '\'' +
+                ", displayName='" + displayName + '\'' +
+                ", descrition='" + descrition + '\'' +
+                '}';
     }
 }

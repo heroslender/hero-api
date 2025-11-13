@@ -27,14 +27,14 @@ public class PluginVersionController {
     }
 
     @GetMapping
-    public CollectionModel<EntityModel<PluginVersion>> versions(@PathVariable long pluginId) {
+    public CollectionModel<EntityModel<PluginVersion>> versions(@PathVariable String pluginId) {
         List<PluginVersion> versions = service.getVersions(pluginId);
 
         return pluginVersionAssembler.toCollectionModel(versions);
     }
 
     @GetMapping("/{version}")
-    public EntityModel<PluginVersion> version(@PathVariable long pluginId, @PathVariable String version) {
+    public EntityModel<PluginVersion> version(@PathVariable String pluginId, @PathVariable String version) {
         PluginVersion ver = service.getVersion(pluginId, version);
 
         return pluginVersionAssembler.toModel(ver);
@@ -42,7 +42,7 @@ public class PluginVersionController {
 
     @PostMapping("/{version}")
     @RequireAdmin
-    public ResponseEntity<EntityModel<PluginVersion>> addVersion(@PathVariable Long pluginId, @PathVariable String version, @RequestBody NewPluginVersionDto newVersion) {
+    public ResponseEntity<EntityModel<PluginVersion>> addVersion(@PathVariable String pluginId, @PathVariable String version, @RequestBody NewPluginVersionDto newVersion) {
         try {
             service.getVersion(pluginId, version);
             throw new DuplicatePluginVersionException(version);
@@ -69,8 +69,9 @@ public class PluginVersionController {
 
     @DeleteMapping("/{version}")
     @RequireAdmin
-    public ResponseEntity<Void> delete(@PathVariable Long version) {
-        service.deleteVersion(version);
+    public ResponseEntity<Void> delete(@PathVariable String pluginId, @PathVariable String version) {
+        PluginVersion ver = service.getVersion(pluginId, version);
+        service.deleteVersion(ver.id());
 
         return ResponseEntity.noContent().build();
     }

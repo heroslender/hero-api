@@ -9,22 +9,24 @@ public class PluginDtoMapper {
 
     public static Plugin toDto(PluginEntity plugin) {
         return new Plugin(
-                plugin.getId(),
-                plugin.getName()
+                plugin.getName(),
+                plugin.getDisplayName(),
+                plugin.getDescrition()
         );
     }
 
     public static PluginEntity fromDto(Plugin dto) {
         return new PluginEntity(
-                dto.id(),
-                dto.name()
+                dto.name(),
+                dto.displayName(),
+                dto.description()
         );
     }
 
     public static PluginVersion toDto(PluginVersionEntity version) {
         return new PluginVersion(
                 version.getId(),
-                version.getPlugin().getId(),
+                version.getPlugin().getName(),
                 version.getTag(),
                 version.getReleasedAt(),
                 version.getReleaseTitle(),
