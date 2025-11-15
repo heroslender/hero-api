@@ -1,29 +1,35 @@
 package com.github.heroslender.hero_api.controller;
 
+import com.github.heroslender.hero_api.database.entity.UserEntity;
 import com.github.heroslender.hero_api.dto.AuthenticationDTO;
 import com.github.heroslender.hero_api.dto.LoginResponseDTO;
 import com.github.heroslender.hero_api.dto.RegistrationDTO;
-import com.github.heroslender.hero_api.database.entity.UserEntity;
+import com.github.heroslender.hero_api.exceptions.UnauthorizedException;
 import com.github.heroslender.hero_api.security.RequireAdmin;
 import com.github.heroslender.hero_api.security.TokenService;
 import com.github.heroslender.hero_api.service.UserService;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+
 @RestController
 @RequestMapping("auth")
 public class AuthController {
-
     private final TokenService tokenService;
     private final UserService userService;
     private final AuthenticationManager authenticationManager;
+    Logger logger = LoggerFactory.getLogger(AuthController.class);
 
     public AuthController(TokenService tokenService, UserService userService, AuthenticationManager authenticationManager) {
         this.tokenService = tokenService;
@@ -33,12 +39,19 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDTO> login(@RequestBody @Valid AuthenticationDTO data) {
-        UsernamePasswordAuthenticationToken usernamePassword = new UsernamePasswordAuthenticationToken(data.login(), data.password());
-        Authentication auth = authenticationManager.authenticate(usernamePassword);
+        try {
+            UsernamePasswordAuthenticationToken usernamePassword = new UsernamePasswordAuthenticationToken(data.login(), data.password());
+            Authentication auth = authenticationManager.authenticate(usernamePassword);
 
-        var token = tokenService.generateToken((UserEntity) auth.getPrincipal());
+            var token = tokenService.generateToken((UserEntity) auth.getPrincipal());
 
-        return ResponseEntity.ok(new LoginResponseDTO(token));
+            return ResponseEntity.ok(new LoginResponseDTO(token));
+        } catch (BadCredentialsException e) {
+            throw new com.github.heroslender.hero_api.exceptions.BadCredentialsException();
+        } catch (AuthenticationException e) {
+            logger.warn("AuthEx", e);
+            throw new UnauthorizedException();
+        }
     }
 
     @PostMapping("/register")

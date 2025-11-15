@@ -5,9 +5,9 @@ import com.github.heroslender.hero_api.database.entity.UserEntity;
 import com.github.heroslender.hero_api.database.entity.UserRole;
 import com.github.heroslender.hero_api.dto.NewPluginVersionDto;
 import com.github.heroslender.hero_api.exceptions.DuplicatePluginVersionException;
+import com.github.heroslender.hero_api.exceptions.ForbiddenException;
 import com.github.heroslender.hero_api.exceptions.PluginNotFoundException;
 import com.github.heroslender.hero_api.exceptions.PluginVersionNotFoundException;
-import com.github.heroslender.hero_api.exceptions.UnauthorizedException;
 import com.github.heroslender.hero_api.model.Plugin;
 import com.github.heroslender.hero_api.model.PluginVersion;
 import com.github.heroslender.hero_api.security.RequireAdmin;
@@ -57,7 +57,7 @@ public class PluginVersionController {
     ) {
         Plugin plugin = service.getPlugin(pluginId).orElseThrow(() -> new PluginNotFoundException(pluginId));
         if (plugin.ownerId() != user.getId() && !user.hasRole(UserRole.ADMIN)) {
-            throw new UnauthorizedException("You are not the owner of this plugin.");
+            throw new ForbiddenException("You are not the owner of this plugin.");
         }
 
         try {
