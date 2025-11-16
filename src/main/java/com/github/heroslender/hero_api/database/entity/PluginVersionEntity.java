@@ -17,7 +17,6 @@ public class PluginVersionEntity {
     private Long releasedAt;
     private String releaseTitle;
     private String releaseNotes;
-    private String downloadUrl;
     private Integer downloadCount;
 
     public PluginEntity getPlugin() {
@@ -31,24 +30,22 @@ public class PluginVersionEntity {
     public PluginVersionEntity() {
     }
 
-    public PluginVersionEntity(PluginEntity plugin, String tag, Long releasedAt, String releaseTitle, String releaseNotes, String downloadUrl, Integer downloadCount) {
+    public PluginVersionEntity(PluginEntity plugin, String tag, Long releasedAt, String releaseTitle, String releaseNotes, Integer downloadCount) {
         this.plugin = plugin;
         this.tag = tag;
         this.releasedAt = releasedAt;
         this.releaseTitle = releaseTitle;
         this.releaseNotes = releaseNotes;
-        this.downloadUrl = downloadUrl;
         this.downloadCount = downloadCount;
     }
 
-    public PluginVersionEntity(Long id, PluginEntity plugin, String tag, Long releasedAt, String releaseTitle, String releaseNotes, String downloadUrl, Integer downloadCount) {
+    public PluginVersionEntity(Long id, PluginEntity plugin, String tag, Long releasedAt, String releaseTitle, String releaseNotes, Integer downloadCount) {
         this.id = id;
         this.plugin = plugin;
         this.tag = tag;
         this.releasedAt = releasedAt;
         this.releaseTitle = releaseTitle;
         this.releaseNotes = releaseNotes;
-        this.downloadUrl = downloadUrl;
         this.downloadCount = downloadCount;
     }
 
@@ -88,14 +85,6 @@ public class PluginVersionEntity {
         this.releaseNotes = releaseNotes;
     }
 
-    public String getDownloadUrl() {
-        return downloadUrl;
-    }
-
-    public void setDownloadUrl(String downloadUrl) {
-        this.downloadUrl = downloadUrl;
-    }
-
     public Integer getDownloadCount() {
         return downloadCount;
     }
@@ -108,12 +97,12 @@ public class PluginVersionEntity {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         PluginVersionEntity that = (PluginVersionEntity) o;
-        return Objects.equals(getId(), that.getId()) && Objects.equals(getTag(), that.getTag()) && Objects.equals(getReleasedAt(), that.getReleasedAt()) && Objects.equals(getReleaseTitle(), that.getReleaseTitle()) && Objects.equals(getReleaseNotes(), that.getReleaseNotes()) && Objects.equals(getDownloadUrl(), that.getDownloadUrl()) && Objects.equals(getDownloadCount(), that.getDownloadCount());
+        return Objects.equals(getId(), that.getId()) && Objects.equals(getTag(), that.getTag()) && Objects.equals(getReleasedAt(), that.getReleasedAt()) && Objects.equals(getReleaseTitle(), that.getReleaseTitle()) && Objects.equals(getReleaseNotes(), that.getReleaseNotes()) && Objects.equals(getDownloadCount(), that.getDownloadCount());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId(), getTag(), getReleasedAt(), getReleaseTitle(), getReleaseNotes(), getDownloadUrl(), getDownloadCount());
+        return Objects.hash(getId(), getTag(), getReleasedAt(), getReleaseTitle(), getReleaseNotes(), getDownloadCount());
     }
 
     @Override
@@ -124,7 +113,6 @@ public class PluginVersionEntity {
                 ", releasedAt=" + releasedAt +
                 ", releaseTitle='" + releaseTitle + '\'' +
                 ", releaseNotes='" + releaseNotes + '\'' +
-                ", downloadUrl='" + downloadUrl + '\'' +
                 ", downloadCount=" + downloadCount +
                 '}';
     }

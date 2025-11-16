@@ -80,7 +80,6 @@ public class PluginVersionController {
                 System.currentTimeMillis(),
                 newVersion.releaseTitle(),
                 newVersion.releaseNotes(),
-                newVersion.downloadUrl(),
                 0
         );
 
@@ -102,7 +101,7 @@ public class PluginVersionController {
     }
 
     @GetMapping("/{version}/download")
-    public ResponseEntity<Resource> serveFile(@PathVariable String pluginId, @PathVariable String version) {
+    public ResponseEntity<Resource> download(@PathVariable String pluginId, @PathVariable String version) {
         String filename = buildFilename(pluginId, version);
         Resource file = storageService.loadAsResource(filename);
 
@@ -114,7 +113,7 @@ public class PluginVersionController {
     }
 
     @PostMapping("/{version}/upload")
-    public ResponseEntity<Void> handleFileUpload(
+    public ResponseEntity<Void> upload(
             @PathVariable String pluginId,
             @PathVariable String version,
             @RequestParam("file") MultipartFile file

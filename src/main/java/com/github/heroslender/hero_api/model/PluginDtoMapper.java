@@ -32,7 +32,6 @@ public class PluginDtoMapper {
                 version.getReleasedAt(),
                 version.getReleaseTitle(),
                 version.getReleaseNotes(),
-                version.getDownloadUrl(),
                 version.getDownloadCount()
         );
     }
@@ -45,7 +44,6 @@ public class PluginDtoMapper {
                 dto.releasedAt(),
                 dto.releaseTitle(),
                 dto.releaseNotes(),
-                dto.downloadUrl(),
                 dto.downloadCount()
         );
     }
