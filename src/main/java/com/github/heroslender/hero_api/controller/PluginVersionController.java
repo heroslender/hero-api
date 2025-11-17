@@ -127,9 +127,4 @@ public class PluginVersionController {
     private String buildFilename(String pluginId, String versionTag) {
         return pluginId.toLowerCase(Locale.ROOT) + "-" + versionTag + ".jar";
     }
-
-    @ExceptionHandler(StorageFileNotFoundException.class)
-    public ResponseEntity<?> handleStorageFileNotFound(StorageFileNotFoundException exc) {
-        return ResponseEntity.notFound().build();
-    }
 }
