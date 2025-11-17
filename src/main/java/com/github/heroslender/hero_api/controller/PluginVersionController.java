@@ -4,18 +4,22 @@ import com.github.heroslender.hero_api.controller.hateoas.PluginVersionAssembler
 import com.github.heroslender.hero_api.database.entity.UserEntity;
 import com.github.heroslender.hero_api.database.entity.UserRole;
 import com.github.heroslender.hero_api.dto.NewPluginVersionDto;
-import com.github.heroslender.hero_api.exceptions.*;
+import com.github.heroslender.hero_api.exceptions.DuplicatePluginVersionException;
+import com.github.heroslender.hero_api.exceptions.ForbiddenException;
+import com.github.heroslender.hero_api.exceptions.PluginNotFoundException;
+import com.github.heroslender.hero_api.exceptions.PluginVersionNotFoundException;
 import com.github.heroslender.hero_api.model.Plugin;
 import com.github.heroslender.hero_api.model.PluginVersion;
 import com.github.heroslender.hero_api.security.RequireAdmin;
 import com.github.heroslender.hero_api.security.RequireUser;
-import com.github.heroslender.hero_api.service.impl.FileSystemPluginVersionStorageService;
 import com.github.heroslender.hero_api.service.PluginService;
+import com.github.heroslender.hero_api.service.PluginVersionStorageService;
 import org.springframework.core.io.Resource;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.IanaLinkRelations;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -28,12 +32,12 @@ import java.util.Locale;
 @RequestMapping("/plugins/{pluginId}/versions")
 public class PluginVersionController {
     private final PluginService service;
-    private final FileSystemPluginVersionStorageService storageService;
+    private final PluginVersionStorageService storageService;
     private final PluginVersionAssembler pluginVersionAssembler;
 
     public PluginVersionController(
             PluginService service,
-            FileSystemPluginVersionStorageService storageService,
+            PluginVersionStorageService storageService,
             PluginVersionAssembler pluginVersionAssembler
     ) {
         this.service = service;
@@ -121,7 +125,9 @@ public class PluginVersionController {
         String filename = buildFilename(pluginId, version);
         storageService.store(filename, file);
 
-        return ResponseEntity.ok().build();
+        return ResponseEntity
+                .status(HttpStatus.FOUND)
+                .build();
     }
 
     private String buildFilename(String pluginId, String versionTag) {
