@@ -1,6 +1,11 @@
 package com.github.heroslender.hero_api.controller;
 
+import com.github.heroslender.hero_api.dto.NewPluginVersionDto;
+import com.github.heroslender.hero_api.exceptions.PluginVersionNotFoundException;
 import com.github.heroslender.hero_api.exceptions.StorageFileNotFoundException;
+import com.github.heroslender.hero_api.model.Plugin;
+import com.github.heroslender.hero_api.model.PluginVersion;
+import com.github.heroslender.hero_api.service.PluginService;
 import com.github.heroslender.hero_api.service.PluginVersionStorageService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,16 +13,19 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.io.File;
+import java.util.Optional;
 
+import static com.github.heroslender.hero_api.security.MockUser.MOCK_USER;
+import static com.github.heroslender.hero_api.security.MockUser.MOCK_USER_REQ;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -33,20 +41,78 @@ class PluginVersionControllerTest {
     private MockMvc mvc;
     @MockitoBean
     private PluginVersionStorageService storageService;
+    @MockitoBean
+    private PluginService service;
 
     @Test
-    public void shouldSaveUploadedFile() throws Exception {
+    void shouldAddPluginVersion() throws Exception {
+        PluginVersion version = new PluginVersion(
+                PLUGIN_NAME,
+                PLUGIN_VERSION,
+                System.currentTimeMillis(),
+                "",
+                "",
+                0
+        );
+
+        given(this.service.getPlugin(PLUGIN_NAME))
+                .willReturn(Optional.of(new Plugin(PLUGIN_NAME, MOCK_USER.getId(), PLUGIN_NAME, "")));
+        given(this.service.getVersion(PLUGIN_NAME, PLUGIN_VERSION))
+                .willThrow(new PluginVersionNotFoundException(PLUGIN_VERSION));
+        given(this.service.addVersion(PLUGIN_NAME, PLUGIN_VERSION, new NewPluginVersionDto(PLUGIN_VERSION, "")))
+                .willReturn(version);
+
+        this.mvc.perform(post(BASE_PATH)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{ \"releaseTitle\": \"" + PLUGIN_VERSION + "\", \"releaseNotes\": \"\" }")
+                        .with(MOCK_USER_REQ))
+                .andExpect(status().isCreated());
+
+        then(this.service).should().addVersion(PLUGIN_NAME, PLUGIN_VERSION, new NewPluginVersionDto(PLUGIN_VERSION, ""));
+    }
+
+    @Test
+    void shouldDenyNewVersionForNonOwners() throws Exception {
+        given(this.service.getPlugin(PLUGIN_NAME))
+                .willReturn(Optional.of(new Plugin(PLUGIN_NAME, 99, PLUGIN_NAME, "")));
+
+        this.mvc.perform(post(BASE_PATH)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{ \"releaseTitle\": \"" + PLUGIN_VERSION + "\", \"releaseNotes\": \"\" }")
+                        .with(MOCK_USER_REQ))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void shouldSaveUploadedFile() throws Exception {
         MockMultipartFile multipartFile = new MockMultipartFile("file", "test.txt",
                 "text/plain", "Spring Framework".getBytes());
 
-        this.mvc.perform(multipart(BASE_PATH + "/upload").file(multipartFile))
-                .andExpect(status().isFound());
+        given(this.service.getPlugin(PLUGIN_NAME))
+                .willReturn(Optional.of(new Plugin(PLUGIN_NAME, MOCK_USER.getId(), PLUGIN_NAME, "")));
+
+        this.mvc.perform(multipart(BASE_PATH + "/upload").file(multipartFile).with(MOCK_USER_REQ))
+                .andExpect(status().isCreated());
 
         then(this.storageService).should().store(PLUGIN_VERSION_FILE, multipartFile);
     }
 
     @Test
-    public void shouldDownloadFile() throws Exception {
+    void shouldDenyUploadForNonOwners() throws Exception {
+        MockMultipartFile multipartFile = new MockMultipartFile("file", "test.txt",
+                "text/plain", "Spring Framework".getBytes());
+
+        given(this.service.getPlugin(PLUGIN_NAME))
+                .willReturn(Optional.of(new Plugin(PLUGIN_NAME, 99, PLUGIN_NAME, "")));
+
+        this.mvc.perform(multipart(BASE_PATH + "/upload").file(multipartFile).with(MOCK_USER_REQ))
+                .andExpect(status().isForbidden());
+
+        then(this.storageService).shouldHaveNoInteractions();
+    }
+
+    @Test
+    void shouldDownloadFile() throws Exception {
         File file = File.createTempFile("file", null);
 
         given(this.storageService.loadAsResource(PLUGIN_VERSION_FILE))
@@ -58,7 +124,7 @@ class PluginVersionControllerTest {
     }
 
     @Test
-    public void should404WhenMissingFile() throws Exception {
+    void should404WhenMissingFile() throws Exception {
         given(this.storageService.loadAsResource(PLUGIN_VERSION_FILE))
                 .willThrow(StorageFileNotFoundException.class);
 
