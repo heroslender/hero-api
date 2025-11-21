@@ -30,6 +30,12 @@ class ExceptionHandlerAdvice {
         return toDto(ex);
     }
 
+    @ExceptionHandler(ForbiddenException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    ApiExceptionDTO forbiddenHandler(ForbiddenException ex) {
+        return toDto(ex);
+    }
+
     private ApiExceptionDTO toDto(RestApiExcetion ex) {
         return new ApiExceptionDTO(
                 ex.getStatusCode(),
