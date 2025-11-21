@@ -78,16 +78,7 @@ public class PluginVersionController {
         } catch (PluginVersionNotFoundException ignored) { // Version does not exist
         }
 
-        PluginVersion pluginVersion = new PluginVersion(
-                pluginId,
-                version,
-                System.currentTimeMillis(),
-                newVersion.releaseTitle(),
-                newVersion.releaseNotes(),
-                0
-        );
-
-        PluginVersion saved = service.addVersion(pluginId, pluginVersion);
+        PluginVersion saved = service.addVersion(pluginId, version, newVersion);
         EntityModel<PluginVersion> entityModel = pluginVersionAssembler.toModel(saved);
 
         return ResponseEntity
@@ -117,16 +108,24 @@ public class PluginVersionController {
     }
 
     @PostMapping("/{version}/upload")
+    @RequireUser
     public ResponseEntity<Void> upload(
+            @AuthenticationPrincipal UserEntity user,
             @PathVariable String pluginId,
             @PathVariable String version,
             @RequestParam("file") MultipartFile file
     ) {
+        Plugin plugin = service.getPlugin(pluginId).orElseThrow(() -> new PluginNotFoundException(pluginId));
+        if (plugin.ownerId() != user.getId() && !user.hasRole(UserRole.ADMIN)) {
+            System.out.println(plugin);
+            throw new ForbiddenException("You are not the owner of this plugin.");
+        }
+
         String filename = buildFilename(pluginId, version);
         storageService.store(filename, file);
 
         return ResponseEntity
-                .status(HttpStatus.FOUND)
+                .status(HttpStatus.CREATED)
                 .build();
     }
 

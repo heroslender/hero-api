@@ -1,6 +1,7 @@
 package com.github.heroslender.hero_api.service;
 
 import com.github.heroslender.hero_api.database.entity.UserEntity;
+import com.github.heroslender.hero_api.dto.NewPluginVersionDto;
 import com.github.heroslender.hero_api.exceptions.PluginNotFoundException;
 import com.github.heroslender.hero_api.model.Plugin;
 import com.github.heroslender.hero_api.model.PluginDtoMapper;
@@ -41,8 +42,17 @@ public class PluginService {
         return PluginDtoMapper.toDto(pl);
     }
 
-    public PluginVersion addVersion(String pluginId, PluginVersion pluginVersion) {
+    public PluginVersion addVersion(String pluginId, String tag, NewPluginVersionDto newVersion) {
         Plugin plugin = getPlugin(pluginId).orElseThrow(() -> new PluginNotFoundException(pluginId));
+
+        PluginVersion pluginVersion = new PluginVersion(
+                pluginId,
+                tag,
+                System.currentTimeMillis(),
+                newVersion.releaseTitle(),
+                newVersion.releaseNotes(),
+                0
+        );
 
         PluginVersionEntity saved = pluginVersionRepository.save(PluginDtoMapper.fromDto(pluginVersion, plugin));
         return PluginDtoMapper.toDto(saved);
