@@ -19,6 +19,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.Optional;
 
 import static com.github.heroslender.hero_api.security.MockUser.MOCK_USER;
@@ -43,6 +44,31 @@ class PluginVersionControllerTest {
     private PluginVersionStorageService storageService;
     @MockitoBean
     private PluginService service;
+
+    @Test
+    void shouldGiveVersionList() throws Exception {
+        given(this.service.getVersions(PLUGIN_NAME))
+                .willReturn(Collections.emptyList());
+
+        this.mvc.perform(get("/plugins/" + PLUGIN_NAME + "/versions"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void shouldGiveVersion() throws Exception {
+        given(this.service.getVersion(PLUGIN_NAME, PLUGIN_VERSION))
+                .willReturn(new PluginVersion(
+                        PLUGIN_NAME,
+                        PLUGIN_VERSION,
+                        System.currentTimeMillis(),
+                        "",
+                        "",
+                        0
+                ));
+
+        this.mvc.perform(get(BASE_PATH))
+                .andExpect(status().isOk());
+    }
 
     @Test
     void shouldAddPluginVersion() throws Exception {
