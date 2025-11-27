@@ -13,6 +13,7 @@ import com.github.heroslender.hero_api.database.repository.PluginRepository;
 import com.github.heroslender.hero_api.database.repository.PluginVersionRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.Clock;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,10 +21,12 @@ import java.util.Optional;
 public class PluginService {
     private final PluginRepository pluginRepository;
     private final PluginVersionRepository pluginVersionRepository;
+    private final Clock clock;
 
-    public PluginService(PluginRepository pluginRepository, PluginVersionRepository pluginVersionRepository) {
+    public PluginService(PluginRepository pluginRepository, PluginVersionRepository pluginVersionRepository, Clock clock) {
         this.pluginRepository = pluginRepository;
         this.pluginVersionRepository = pluginVersionRepository;
+        this.clock = clock;
     }
 
     public List<Plugin> getPlugins() {
@@ -48,7 +51,7 @@ public class PluginService {
         PluginVersion pluginVersion = new PluginVersion(
                 pluginId,
                 tag,
-                System.currentTimeMillis(),
+                clock.millis(),
                 newVersion.releaseTitle(),
                 newVersion.releaseNotes(),
                 0
