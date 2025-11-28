@@ -76,7 +76,7 @@ class PluginServiceTest {
     void testGetPlugin() {
         when(repository.findByName(PLUGIN_ID)).thenReturn(Optional.of(PLUGIN_TEST));
 
-        Optional<Plugin> plugin = service.getPlugin(PLUGIN_ID);
+        Optional<Plugin> plugin = service.getPluginOpt(PLUGIN_ID);
 
         assertThat(plugin)
                 .isPresent()
@@ -84,7 +84,7 @@ class PluginServiceTest {
 
         when(repository.findByName(PLUGIN_ID)).thenReturn(Optional.empty());
 
-        plugin = service.getPlugin(PLUGIN_ID);
+        plugin = service.getPluginOpt(PLUGIN_ID);
         assertThat(plugin).isNotPresent();
         verify(repository, times(2)).findByName(PLUGIN_ID);
     }

@@ -67,7 +67,7 @@ public class PluginVersionController {
             @PathVariable String version,
             @RequestBody NewPluginVersionDto newVersion
     ) {
-        Plugin plugin = service.getPlugin(pluginId).orElseThrow(() -> new PluginNotFoundException(pluginId));
+        Plugin plugin = service.getPlugin(pluginId);
         if (plugin.ownerId() != user.getId() && !user.hasRole(UserRole.ADMIN)) {
             throw new ForbiddenException("You are not the owner of this plugin.");
         }
@@ -115,7 +115,7 @@ public class PluginVersionController {
             @PathVariable String version,
             @RequestParam("file") MultipartFile file
     ) {
-        Plugin plugin = service.getPlugin(pluginId).orElseThrow(() -> new PluginNotFoundException(pluginId));
+        Plugin plugin = service.getPlugin(pluginId);
         if (plugin.ownerId() != user.getId() && !user.hasRole(UserRole.ADMIN)) {
             System.out.println(plugin);
             throw new ForbiddenException("You are not the owner of this plugin.");

@@ -1,10 +1,9 @@
 package com.github.heroslender.hero_api.controller;
 
+import com.github.heroslender.hero_api.controller.hateoas.PluginAssembler;
 import com.github.heroslender.hero_api.database.entity.UserEntity;
 import com.github.heroslender.hero_api.dto.NewPluginDto;
 import com.github.heroslender.hero_api.model.Plugin;
-import com.github.heroslender.hero_api.exceptions.PluginNotFoundException;
-import com.github.heroslender.hero_api.controller.hateoas.PluginAssembler;
 import com.github.heroslender.hero_api.security.RequireAdmin;
 import com.github.heroslender.hero_api.security.RequireUser;
 import com.github.heroslender.hero_api.service.PluginService;
@@ -32,7 +31,7 @@ public class PluginController {
 
 
     @PostMapping("/plugins")
-    @RequireUser
+    @RequireAdmin
     public ResponseEntity<EntityModel<Plugin>> newPlugin(
             @AuthenticationPrincipal UserEntity user,
             @RequestBody NewPluginDto newPlugin
@@ -52,8 +51,7 @@ public class PluginController {
 
     @GetMapping("/plugins/{id}")
     public EntityModel<Plugin> plugin(@PathVariable String id) {
-        Plugin plugin = service.getPlugin(id)
-                .orElseThrow(() -> new PluginNotFoundException(id));
+        Plugin plugin = service.getPlugin(id);
 
         return assembler.toModel(plugin);
     }

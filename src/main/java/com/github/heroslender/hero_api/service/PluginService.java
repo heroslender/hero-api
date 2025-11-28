@@ -1,16 +1,16 @@
 package com.github.heroslender.hero_api.service;
 
+import com.github.heroslender.hero_api.database.entity.PluginEntity;
+import com.github.heroslender.hero_api.database.entity.PluginVersionEntity;
 import com.github.heroslender.hero_api.database.entity.UserEntity;
+import com.github.heroslender.hero_api.database.repository.PluginRepository;
+import com.github.heroslender.hero_api.database.repository.PluginVersionRepository;
 import com.github.heroslender.hero_api.dto.NewPluginVersionDto;
 import com.github.heroslender.hero_api.exceptions.PluginNotFoundException;
+import com.github.heroslender.hero_api.exceptions.PluginVersionNotFoundException;
 import com.github.heroslender.hero_api.model.Plugin;
 import com.github.heroslender.hero_api.model.PluginDtoMapper;
 import com.github.heroslender.hero_api.model.PluginVersion;
-import com.github.heroslender.hero_api.database.entity.PluginEntity;
-import com.github.heroslender.hero_api.database.entity.PluginVersionEntity;
-import com.github.heroslender.hero_api.exceptions.PluginVersionNotFoundException;
-import com.github.heroslender.hero_api.database.repository.PluginRepository;
-import com.github.heroslender.hero_api.database.repository.PluginVersionRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.Clock;
@@ -29,14 +29,43 @@ public class PluginService {
         this.clock = clock;
     }
 
+    /**
+     * Get all plugins saved in the database.
+     *
+     * @return A list containing all stored plugins
+     */
     public List<Plugin> getPlugins() {
         return pluginRepository.findAll().stream().map(PluginDtoMapper::toDto).toList();
     }
 
-    public Optional<Plugin> getPlugin(String id) {
+    /**
+     * Get a plugin by its ID.
+     *
+     * @param id The ID of the plugin
+     * @return The requested plugin
+     * @throws PluginNotFoundException If the plugin was not found
+     */
+    public Plugin getPlugin(String id) {
+        return getPluginOpt(id).orElseThrow(() -> new PluginNotFoundException(id));
+    }
+
+    /**
+     * Get a plugin by its ID.
+     *
+     * @param id The ID of the plugin
+     * @return An Optional containing the plugin if found
+     */
+    public Optional<Plugin> getPluginOpt(String id) {
         return pluginRepository.findByName(id).map(PluginDtoMapper::toDto);
     }
 
+    /**
+     * Save a plugin to the database.
+     *
+     * @param plugin The plugin to save
+     * @param owner  The owner of the plugin
+     * @return The saved plugin
+     */
     public Plugin save(Plugin plugin, UserEntity owner) {
         PluginEntity entity = PluginDtoMapper.fromDto(plugin);
         entity.setOwner(owner);
@@ -45,8 +74,17 @@ public class PluginService {
         return PluginDtoMapper.toDto(pl);
     }
 
+    /**
+     * Add a version to a plugin.
+     *
+     * @param pluginId   The plugin that will get the new version
+     * @param tag        The version tag
+     * @param newVersion The version data
+     * @return The added plugin version
+     * @throws PluginNotFoundException If the plugin was not found
+     */
     public PluginVersion addVersion(String pluginId, String tag, NewPluginVersionDto newVersion) {
-        Plugin plugin = getPlugin(pluginId).orElseThrow(() -> new PluginNotFoundException(pluginId));
+        Plugin plugin = getPlugin(pluginId);
 
         PluginVersion pluginVersion = new PluginVersion(
                 pluginId,
@@ -61,16 +99,37 @@ public class PluginService {
         return PluginDtoMapper.toDto(saved);
     }
 
+    /**
+     * Delete a plugin from the database.
+     *
+     * @param id The ID of the plugin
+     */
     public void delete(String id) {
         pluginRepository.deleteByName(id);
     }
 
+    /**
+     * Get all versions for a plugin.
+     *
+     * @param pluginId The plugin to get the versions from
+     * @return A list containing all versions
+     * @throws PluginNotFoundException If the plugin was not found
+     */
     public List<PluginVersion> getVersions(String pluginId) {
         PluginEntity pl = pluginRepository.findByName(pluginId).orElseThrow(() -> new PluginNotFoundException(pluginId));
 
         return pl.getVersions().stream().map(PluginDtoMapper::toDto).toList();
     }
 
+    /**
+     * Get a specific version for a plugin
+     *
+     * @param pluginId   The ID of the plugin
+     * @param versionTag The desired version tag
+     * @return The requested version
+     * @throws PluginNotFoundException        If the plugin was not found
+     * @throws PluginVersionNotFoundException If the requested version was not found
+     */
     public PluginVersion getVersion(String pluginId, String versionTag) {
         List<PluginVersion> versions = getVersions(pluginId);
 
