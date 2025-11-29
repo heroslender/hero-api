@@ -32,7 +32,7 @@ import static org.mockito.Mockito.*;
 class PluginServiceTest {
     private static final String PLUGIN_ID = "Test";
     private static final PluginEntity PLUGIN_TEST = new PluginEntity(PLUGIN_ID, "", "");
-    private static final Plugin PLUGIN_TEST_DTO = PluginDtoMapper.toDto(PLUGIN_TEST);
+    private static final Plugin PLUGIN_TEST_DTO;
     private static final Clock CLOCK = Clock.fixed(Instant.now(), ZoneOffset.UTC);
 
     static {
@@ -40,6 +40,8 @@ class PluginServiceTest {
         PLUGIN_TEST.setVersions(List.of(
                 new PluginVersionEntity(PLUGIN_TEST, "v1.0", CLOCK.millis(), "Sample Title", "", 0)
         ));
+
+        PLUGIN_TEST_DTO = PluginDtoMapper.toDto(PLUGIN_TEST);
     }
 
     private PluginService service;

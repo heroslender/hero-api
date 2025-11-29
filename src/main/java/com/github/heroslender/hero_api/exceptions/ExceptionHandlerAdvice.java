@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -38,6 +39,12 @@ class ExceptionHandlerAdvice {
     @ResponseStatus(HttpStatus.FORBIDDEN)
     ApiExceptionDTO forbiddenHandler(ForbiddenException ex) {
         return toDto(ex);
+    }
+
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    ApiExceptionDTO forbiddenHandler(AuthorizationDeniedException ex) {
+        return toDto(new ForbiddenException("You don't have the required permissions to do that."));
     }
 
     @ExceptionHandler(Exception.class)

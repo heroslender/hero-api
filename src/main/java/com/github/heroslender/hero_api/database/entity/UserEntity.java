@@ -73,6 +73,9 @@ public class UserEntity implements UserDetails {
         if (hasRole("ADMIN")) {
             authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
         }
+        if (hasRole("DEVELOPER")) {
+            authorities.add(new SimpleGrantedAuthority("ROLE_DEVELOPER"));
+        }
 
         return authorities;
     }
