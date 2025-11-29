@@ -2,16 +2,14 @@ package com.github.heroslender.hero_api.controller;
 
 import com.github.heroslender.hero_api.controller.hateoas.PluginVersionAssembler;
 import com.github.heroslender.hero_api.database.entity.UserEntity;
-import com.github.heroslender.hero_api.database.entity.UserRole;
+import com.github.heroslender.hero_api.model.UserRole;
 import com.github.heroslender.hero_api.dto.NewPluginVersionDto;
 import com.github.heroslender.hero_api.exceptions.DuplicatePluginVersionException;
 import com.github.heroslender.hero_api.exceptions.ForbiddenException;
-import com.github.heroslender.hero_api.exceptions.PluginNotFoundException;
 import com.github.heroslender.hero_api.exceptions.PluginVersionNotFoundException;
 import com.github.heroslender.hero_api.model.Plugin;
 import com.github.heroslender.hero_api.model.PluginVersion;
-import com.github.heroslender.hero_api.security.RequireAdmin;
-import com.github.heroslender.hero_api.security.RequireUser;
+import com.github.heroslender.hero_api.security.RequireDeveloperRole;
 import com.github.heroslender.hero_api.service.PluginService;
 import com.github.heroslender.hero_api.service.PluginVersionStorageService;
 import org.springframework.core.io.Resource;
@@ -60,7 +58,7 @@ public class PluginVersionController {
     }
 
     @PostMapping("/{version}")
-    @RequireUser
+    @RequireDeveloperRole
     public ResponseEntity<EntityModel<PluginVersion>> addVersion(
             @AuthenticationPrincipal UserEntity user,
             @PathVariable String pluginId,
@@ -87,8 +85,17 @@ public class PluginVersionController {
     }
 
     @DeleteMapping("/{version}")
-    @RequireAdmin
-    public ResponseEntity<Void> delete(@PathVariable String pluginId, @PathVariable String version) {
+    @RequireDeveloperRole
+    public ResponseEntity<Void> delete(
+            @AuthenticationPrincipal UserEntity user,
+            @PathVariable String pluginId,
+            @PathVariable String version
+    ) {
+        Plugin plugin = service.getPlugin(pluginId);
+        if (plugin.ownerId() != user.getId() && !user.hasRole(UserRole.ADMIN)) {
+            throw new ForbiddenException("You are not the owner of this plugin.");
+        }
+
         PluginVersion ver = service.getVersion(pluginId, version);
         service.deleteVersion(ver.id());
 
@@ -108,7 +115,7 @@ public class PluginVersionController {
     }
 
     @PostMapping("/{version}/upload")
-    @RequireUser
+    @RequireDeveloperRole
     public ResponseEntity<Void> upload(
             @AuthenticationPrincipal UserEntity user,
             @PathVariable String pluginId,
@@ -117,7 +124,6 @@ public class PluginVersionController {
     ) {
         Plugin plugin = service.getPlugin(pluginId);
         if (plugin.ownerId() != user.getId() && !user.hasRole(UserRole.ADMIN)) {
-            System.out.println(plugin);
             throw new ForbiddenException("You are not the owner of this plugin.");
         }
 

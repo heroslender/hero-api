@@ -1,7 +1,8 @@
-package com.github.heroslender.hero_api.database.entity;
+package com.github.heroslender.hero_api.model;
 
 public enum UserRole {
     USER("USER"),
+    DEVELOPER("DEVELOPER"),
     ADMIN("ADMIN");
 
     private final String role;

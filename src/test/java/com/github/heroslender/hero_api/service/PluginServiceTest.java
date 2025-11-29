@@ -31,11 +31,12 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class PluginServiceTest {
     private static final String PLUGIN_ID = "Test";
-    private static final PluginEntity PLUGIN_TEST = new PluginEntity(PLUGIN_ID, MOCK_USER, "", "");
+    private static final PluginEntity PLUGIN_TEST = new PluginEntity(PLUGIN_ID, "", "");
     private static final Plugin PLUGIN_TEST_DTO = PluginDtoMapper.toDto(PLUGIN_TEST);
     private static final Clock CLOCK = Clock.fixed(Instant.now(), ZoneOffset.UTC);
 
     static {
+        PLUGIN_TEST.setOwner(MOCK_USER);
         PLUGIN_TEST.setVersions(List.of(
                 new PluginVersionEntity(PLUGIN_TEST, "v1.0", CLOCK.millis(), "Sample Title", "", 0)
         ));
@@ -61,10 +62,9 @@ class PluginServiceTest {
         assertThat(result).isEmpty();
         verify(repository).findAll();
 
-        when(repository.findAll()).thenReturn(List.of(
-                PLUGIN_TEST,
-                new PluginEntity("Test2", MOCK_USER, "", "")
-        ));
+        PluginEntity plugin = new PluginEntity("Test2", "", "");
+        plugin.setOwner(MOCK_USER);
+        when(repository.findAll()).thenReturn(List.of(PLUGIN_TEST, plugin));
 
         result = service.getPlugins();
         assertThat(result).hasSize(2);

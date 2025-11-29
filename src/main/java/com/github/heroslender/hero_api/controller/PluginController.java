@@ -4,8 +4,7 @@ import com.github.heroslender.hero_api.controller.hateoas.PluginAssembler;
 import com.github.heroslender.hero_api.database.entity.UserEntity;
 import com.github.heroslender.hero_api.dto.NewPluginDto;
 import com.github.heroslender.hero_api.model.Plugin;
-import com.github.heroslender.hero_api.security.RequireAdmin;
-import com.github.heroslender.hero_api.security.RequireUser;
+import com.github.heroslender.hero_api.security.RequireAdminRole;
 import com.github.heroslender.hero_api.service.PluginService;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
@@ -31,7 +30,7 @@ public class PluginController {
 
 
     @PostMapping("/plugins")
-    @RequireAdmin
+    @RequireAdminRole
     public ResponseEntity<EntityModel<Plugin>> newPlugin(
             @AuthenticationPrincipal UserEntity user,
             @RequestBody NewPluginDto newPlugin
@@ -57,7 +56,7 @@ public class PluginController {
     }
 
     @PutMapping("/plugins/{id}")
-    @RequireAdmin
+    @RequireAdminRole
     public ResponseEntity<EntityModel<Plugin>> replacePlugin(
             @AuthenticationPrincipal UserEntity user,
             @RequestBody Plugin newPlugin,
@@ -73,7 +72,7 @@ public class PluginController {
     }
 
     @DeleteMapping("/plugins/{id}")
-    @RequireAdmin
+    @RequireAdminRole
     public ResponseEntity<Void> deletePlugin(@PathVariable String id) {
         service.delete(id);
 

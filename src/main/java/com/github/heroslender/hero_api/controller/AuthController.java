@@ -5,7 +5,7 @@ import com.github.heroslender.hero_api.dto.AuthenticationDTO;
 import com.github.heroslender.hero_api.dto.LoginResponseDTO;
 import com.github.heroslender.hero_api.dto.RegistrationDTO;
 import com.github.heroslender.hero_api.exceptions.UnauthorizedException;
-import com.github.heroslender.hero_api.security.RequireAdmin;
+import com.github.heroslender.hero_api.security.RequireAdminRole;
 import com.github.heroslender.hero_api.security.TokenService;
 import com.github.heroslender.hero_api.service.UserService;
 import jakarta.validation.Valid;
@@ -55,7 +55,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    @RequireAdmin
+    @RequireAdminRole
     public ResponseEntity<Void> register(@RequestBody @Valid RegistrationDTO data) {
         UserEntity user = userService.getUser(data.username());
         if (user != null) {

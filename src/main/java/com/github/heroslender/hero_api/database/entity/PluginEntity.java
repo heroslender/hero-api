@@ -32,13 +32,6 @@ public class PluginEntity {
         this.descrition = descrition;
     }
 
-    public PluginEntity(String name, UserEntity owner, String displayName, String descrition) {
-        this.name = name;
-        this.owner = owner;
-        this.displayName = displayName;
-        this.descrition = descrition;
-    }
-
     public String getName() {
         return name;
     }

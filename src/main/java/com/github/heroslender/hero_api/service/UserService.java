@@ -1,7 +1,7 @@
 package com.github.heroslender.hero_api.service;
 
 import com.github.heroslender.hero_api.dto.RegistrationDTO;
-import com.github.heroslender.hero_api.database.entity.UserRole;
+import com.github.heroslender.hero_api.model.UserRole;
 import com.github.heroslender.hero_api.database.entity.UserEntity;
 import com.github.heroslender.hero_api.database.repository.UserRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;

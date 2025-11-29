@@ -1,5 +1,6 @@
 package com.github.heroslender.hero_api.database.entity;
 
+import com.github.heroslender.hero_api.model.UserRole;
 import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

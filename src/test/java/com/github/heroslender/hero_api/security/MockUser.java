@@ -1,7 +1,7 @@
 package com.github.heroslender.hero_api.security;
 
 import com.github.heroslender.hero_api.database.entity.UserEntity;
-import com.github.heroslender.hero_api.database.entity.UserRole;
+import com.github.heroslender.hero_api.model.UserRole;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
 import java.util.List;
