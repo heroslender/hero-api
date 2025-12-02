@@ -3,9 +3,11 @@ package com.github.heroslender.hero_api.controller;
 import com.github.heroslender.hero_api.controller.hateoas.PluginAssembler;
 import com.github.heroslender.hero_api.database.entity.UserEntity;
 import com.github.heroslender.hero_api.dto.NewPluginDto;
+import com.github.heroslender.hero_api.exceptions.ForbiddenException;
 import com.github.heroslender.hero_api.model.Plugin;
 import com.github.heroslender.hero_api.model.PluginVisibility;
 import com.github.heroslender.hero_api.security.RequireAdminRole;
+import com.github.heroslender.hero_api.service.PluginLicenceService;
 import com.github.heroslender.hero_api.service.PluginService;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
@@ -14,19 +16,35 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @RestController
 public class PluginController {
     private final PluginService service;
+    private final PluginLicenceService licenceService;
+
     private final PluginAssembler assembler;
 
-    public PluginController(PluginService service, PluginAssembler assembler) {
+    public PluginController(PluginService service, PluginLicenceService licenceService, PluginAssembler assembler) {
         this.service = service;
+        this.licenceService = licenceService;
         this.assembler = assembler;
     }
 
     @GetMapping("/plugins")
-    public CollectionModel<EntityModel<Plugin>> plugins() {
-        return assembler.toCollectionModel(service.getPlugins());
+    public CollectionModel<EntityModel<Plugin>> plugins(@AuthenticationPrincipal UserEntity user) {
+        List<Plugin> availablePlugins = new ArrayList<>();
+        for (Plugin plugin : service.getPlugins()) {
+            if (plugin.visibility() == PluginVisibility.PUBLIC
+                    || (plugin.visibility() == PluginVisibility.REQUIRE_LICENCE
+                    && user != null
+                    && licenceService.hasLicence(user.getId(), plugin.name()))) {
+                availablePlugins.add(plugin);
+            }
+        }
+
+        return assembler.toCollectionModel(availablePlugins);
     }
 
 
@@ -51,10 +69,16 @@ public class PluginController {
     }
 
     @GetMapping("/plugins/{id}")
-    public EntityModel<Plugin> plugin(@PathVariable String id) {
+    public EntityModel<Plugin> plugin(@AuthenticationPrincipal UserEntity user, @PathVariable String id) {
         Plugin plugin = service.getPlugin(id);
+        if (plugin.visibility() == PluginVisibility.PUBLIC
+                || (plugin.visibility() == PluginVisibility.REQUIRE_LICENCE
+                && user != null
+                && licenceService.hasLicence(user.getId(), plugin.name()))) {
+            return assembler.toModel(plugin);
+        }
 
-        return assembler.toModel(plugin);
+        throw new ForbiddenException();
     }
 
     @PutMapping("/plugins/{id}")

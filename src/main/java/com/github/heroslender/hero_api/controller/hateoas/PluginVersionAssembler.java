@@ -24,7 +24,7 @@ public class PluginVersionAssembler implements RepresentationModelAssembler<Plug
                 linkTo(methodOn(PluginVersionController.class).version(entity.pluginId(), entity.tag())).withSelfRel(),
                 linkTo(methodOn(PluginVersionController.class).download(entity.pluginId(), entity.tag())).withRel("download"),
                 linkTo(methodOn(PluginVersionController.class).versions(entity.pluginId())).withRel("versions"),
-                linkTo(methodOn(PluginController.class).plugin(entity.pluginId())).withRel("plugin")
+                linkTo(methodOn(PluginController.class).plugin(null, entity.pluginId())).withRel("plugin")
         );
     }
 
@@ -34,6 +34,6 @@ public class PluginVersionAssembler implements RepresentationModelAssembler<Plug
                 .map(this::toModel)
                 .collect(Collectors.toList());
 
-        return CollectionModel.of(employees, linkTo(methodOn(PluginController.class).plugins()).withSelfRel());
+        return CollectionModel.of(employees, linkTo(methodOn(PluginController.class).plugins(null)).withSelfRel());
     }
 }
