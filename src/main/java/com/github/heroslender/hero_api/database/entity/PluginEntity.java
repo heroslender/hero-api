@@ -1,6 +1,8 @@
 package com.github.heroslender.hero_api.database.entity;
 
+import com.github.heroslender.hero_api.model.PluginVisibility;
 import jakarta.persistence.*;
+import org.hibernate.annotations.ColumnDefault;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +18,11 @@ public class PluginEntity {
     private String displayName;
     private String descrition;
 
+    @Column(nullable = false)
+    @ColumnDefault("'PUBLIC'")
+    @Enumerated(EnumType.STRING)
+    private PluginVisibility visibility = PluginVisibility.PUBLIC;
+
     @OneToMany(mappedBy = "plugin", fetch = FetchType.LAZY)
     private List<PluginVersionEntity> versions = new ArrayList<>();
 
@@ -23,11 +30,12 @@ public class PluginEntity {
     }
 
     public PluginEntity(String name) {
-        this(name, name, null);
+        this(name, PluginVisibility.PUBLIC, name, null);
     }
 
-    public PluginEntity(String name, String displayName, String descrition) {
+    public PluginEntity(String name, PluginVisibility visibility, String displayName, String descrition) {
         this.name = name;
+        this.visibility = visibility;
         this.displayName = displayName;
         this.descrition = descrition;
     }
@@ -58,6 +66,14 @@ public class PluginEntity {
 
     public void setDescrition(String descrition) {
         this.descrition = descrition;
+    }
+
+    public PluginVisibility getVisibility() {
+        return visibility;
+    }
+
+    public void setVisibility(PluginVisibility visibility) {
+        this.visibility = visibility;
     }
 
     public List<PluginVersionEntity> getVersions() {

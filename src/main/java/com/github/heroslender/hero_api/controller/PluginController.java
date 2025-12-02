@@ -4,6 +4,7 @@ import com.github.heroslender.hero_api.controller.hateoas.PluginAssembler;
 import com.github.heroslender.hero_api.database.entity.UserEntity;
 import com.github.heroslender.hero_api.dto.NewPluginDto;
 import com.github.heroslender.hero_api.model.Plugin;
+import com.github.heroslender.hero_api.model.PluginVisibility;
 import com.github.heroslender.hero_api.security.RequireAdminRole;
 import com.github.heroslender.hero_api.service.PluginService;
 import org.springframework.hateoas.CollectionModel;
@@ -38,6 +39,7 @@ public class PluginController {
         Plugin plugin = new Plugin(
                 newPlugin.name(),
                 user.getId(),
+                PluginVisibility.PUBLIC,
                 newPlugin.displayName(),
                 newPlugin.description()
         );
