@@ -22,8 +22,8 @@ public class PluginVersionAssembler implements RepresentationModelAssembler<Plug
     public EntityModel<PluginVersion> toModel(PluginVersion entity) {
         return EntityModel.of(entity,
                 linkTo(methodOn(PluginVersionController.class).version(entity.pluginId(), entity.tag())).withSelfRel(),
-                linkTo(methodOn(PluginVersionController.class).download(entity.pluginId(), entity.tag())).withRel("download"),
-                linkTo(methodOn(PluginVersionController.class).versions(entity.pluginId())).withRel("versions"),
+                linkTo(methodOn(PluginVersionController.class).download(null, entity.pluginId(), entity.tag())).withRel("download"),
+                linkTo(methodOn(PluginVersionController.class).versions(null, entity.pluginId())).withRel("versions"),
                 linkTo(methodOn(PluginController.class).plugin(null, entity.pluginId())).withRel("plugin")
         );
     }

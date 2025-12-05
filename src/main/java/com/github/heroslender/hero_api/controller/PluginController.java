@@ -3,7 +3,6 @@ package com.github.heroslender.hero_api.controller;
 import com.github.heroslender.hero_api.controller.hateoas.PluginAssembler;
 import com.github.heroslender.hero_api.database.entity.UserEntity;
 import com.github.heroslender.hero_api.dto.NewPluginDto;
-import com.github.heroslender.hero_api.exceptions.ForbiddenException;
 import com.github.heroslender.hero_api.model.Plugin;
 import com.github.heroslender.hero_api.model.PluginVisibility;
 import com.github.heroslender.hero_api.security.RequireAdminRole;
@@ -36,10 +35,7 @@ public class PluginController {
     public CollectionModel<EntityModel<Plugin>> plugins(@AuthenticationPrincipal UserEntity user) {
         List<Plugin> availablePlugins = new ArrayList<>();
         for (Plugin plugin : service.getPlugins()) {
-            if (plugin.visibility() == PluginVisibility.PUBLIC
-                    || (plugin.visibility() == PluginVisibility.REQUIRE_LICENCE
-                    && user != null
-                    && licenceService.hasLicence(user.getId(), plugin.name()))) {
+            if (licenceService.userHasAccessToPlugin(user, plugin)) {
                 availablePlugins.add(plugin);
             }
         }
@@ -71,14 +67,9 @@ public class PluginController {
     @GetMapping("/plugins/{id}")
     public EntityModel<Plugin> plugin(@AuthenticationPrincipal UserEntity user, @PathVariable String id) {
         Plugin plugin = service.getPlugin(id);
-        if (plugin.visibility() == PluginVisibility.PUBLIC
-                || (plugin.visibility() == PluginVisibility.REQUIRE_LICENCE
-                && user != null
-                && licenceService.hasLicence(user.getId(), plugin.name()))) {
-            return assembler.toModel(plugin);
-        }
+        licenceService.checkUserAccessToPlugin(user, plugin);
 
-        throw new ForbiddenException();
+        return assembler.toModel(plugin);
     }
 
     @PutMapping("/plugins/{id}")
