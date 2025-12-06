@@ -2,6 +2,7 @@ package com.github.heroslender.hero_api.controller.hateoas;
 
 import com.github.heroslender.hero_api.controller.PluginController;
 import com.github.heroslender.hero_api.controller.PluginVersionController;
+import com.github.heroslender.hero_api.model.PluginLicence;
 import com.github.heroslender.hero_api.model.PluginVersion;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
@@ -16,21 +17,19 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Component
-public class PluginVersionAssembler implements RepresentationModelAssembler<PluginVersion, EntityModel<PluginVersion>> {
+public class PluginLicenceAssembler implements RepresentationModelAssembler<PluginLicence, EntityModel<PluginLicence>> {
 
     @Override
-    public EntityModel<PluginVersion> toModel(PluginVersion entity) {
+    public EntityModel<PluginLicence> toModel(PluginLicence entity) {
         return EntityModel.of(entity,
-                linkTo(methodOn(PluginVersionController.class).version(entity.pluginId(), entity.tag())).withSelfRel(),
-                linkTo(methodOn(PluginVersionController.class).download(null, entity.pluginId(), entity.tag())).withRel("download"),
                 linkTo(methodOn(PluginVersionController.class).versions(null, entity.pluginId())).withRel("versions"),
                 linkTo(methodOn(PluginController.class).plugin(null, entity.pluginId())).withRel("plugin")
         );
     }
 
     @Override
-    public CollectionModel<EntityModel<PluginVersion>> toCollectionModel(Iterable<? extends PluginVersion> entities) {
-        List<EntityModel<PluginVersion>> licences = StreamSupport.stream(entities.spliterator(), false)
+    public CollectionModel<EntityModel<PluginLicence>> toCollectionModel(Iterable<? extends PluginLicence> entities) {
+        List<EntityModel<PluginLicence>> licences = StreamSupport.stream(entities.spliterator(), false)
                 .map(this::toModel)
                 .collect(Collectors.toList());
 

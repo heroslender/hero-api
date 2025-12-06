@@ -4,16 +4,44 @@ import com.github.heroslender.hero_api.database.entity.PluginLicenceEntity;
 import com.github.heroslender.hero_api.database.entity.UserEntity;
 import com.github.heroslender.hero_api.database.repository.PluginLicenceRepository;
 import com.github.heroslender.hero_api.exceptions.ForbiddenException;
+import com.github.heroslender.hero_api.exceptions.ResourceNotFoundException;
+import com.github.heroslender.hero_api.exceptions.UnauthorizedException;
 import com.github.heroslender.hero_api.model.Plugin;
+import com.github.heroslender.hero_api.model.PluginLicence;
+import com.github.heroslender.hero_api.model.PluginLicenceDtoMapper;
 import com.github.heroslender.hero_api.model.PluginVisibility;
 import org.springframework.stereotype.Service;
+
+import java.time.Clock;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class PluginLicenceService {
     private final PluginLicenceRepository repository;
+    private final Clock clock;
 
-    public PluginLicenceService(PluginLicenceRepository repository) {
+    public PluginLicenceService(PluginLicenceRepository repository, Clock clock) {
         this.repository = repository;
+        this.clock = clock;
+    }
+
+    public Optional<PluginLicence> getLicenceOpt(UUID id) {
+        return repository.findById(id).map(PluginLicenceDtoMapper::toDto);
+    }
+
+    public PluginLicence getLicence(UUID id) {
+        return getLicenceOpt(id).orElseThrow(() -> new ResourceNotFoundException("Licence is not valid!"));
+    }
+
+    public PluginLicence validateLicence(UUID id) {
+        PluginLicence licence = getLicence(id);
+
+        if (licence.createdAt() + licence.duration() < clock.millis()) {
+            throw new UnauthorizedException("Your licence has expired!");
+        }
+
+        return licence;
     }
 
     public boolean userHasAccessToPlugin(UserEntity user, Plugin plugin) {
