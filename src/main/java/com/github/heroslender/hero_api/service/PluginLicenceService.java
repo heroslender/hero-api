@@ -3,6 +3,8 @@ package com.github.heroslender.hero_api.service;
 import com.github.heroslender.hero_api.database.entity.PluginLicenceEntity;
 import com.github.heroslender.hero_api.database.entity.UserEntity;
 import com.github.heroslender.hero_api.database.repository.PluginLicenceRepository;
+import com.github.heroslender.hero_api.dto.NewLicenceDTO;
+import com.github.heroslender.hero_api.dto.UpdateLicenceDTO;
 import com.github.heroslender.hero_api.exceptions.ForbiddenException;
 import com.github.heroslender.hero_api.exceptions.ResourceNotFoundException;
 import com.github.heroslender.hero_api.exceptions.UnauthorizedException;
@@ -63,5 +65,21 @@ public class PluginLicenceService {
         }
 
         return false;
+    }
+
+    public PluginLicence createLicence(UserEntity user, String pluginId, NewLicenceDTO request) {
+        return null;
+    }
+
+    public PluginLicence updateLicence(UUID licence, UpdateLicenceDTO request) {
+        return null;
+    }
+
+    public void deleteLicence(UUID licence) {
+
+    }
+
+    public UUID uuidFromString(String uuidString) {
+        return UUID.fromString(uuidString);
     }
 }
