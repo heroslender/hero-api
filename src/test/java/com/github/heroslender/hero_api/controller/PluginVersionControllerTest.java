@@ -5,6 +5,7 @@ import com.github.heroslender.hero_api.exceptions.PluginVersionNotFoundException
 import com.github.heroslender.hero_api.exceptions.StorageFileNotFoundException;
 import com.github.heroslender.hero_api.model.Plugin;
 import com.github.heroslender.hero_api.model.PluginVersion;
+import com.github.heroslender.hero_api.model.PluginVisibility;
 import com.github.heroslender.hero_api.service.PluginService;
 import com.github.heroslender.hero_api.service.PluginVersionStorageService;
 import org.junit.jupiter.api.Test;
@@ -82,7 +83,7 @@ class PluginVersionControllerTest {
         );
 
         given(this.service.getPlugin(PLUGIN_NAME))
-                .willReturn(new Plugin(PLUGIN_NAME, MOCK_USER.getId(), PLUGIN_NAME, ""));
+                .willReturn(new Plugin(PLUGIN_NAME, MOCK_USER.getId(), PluginVisibility.PUBLIC, PLUGIN_NAME, ""));
         given(this.service.getVersion(PLUGIN_NAME, PLUGIN_VERSION))
                 .willThrow(new PluginVersionNotFoundException(PLUGIN_VERSION));
         given(this.service.addVersion(PLUGIN_NAME, PLUGIN_VERSION, new NewPluginVersionDto(PLUGIN_VERSION, "")))
@@ -100,7 +101,7 @@ class PluginVersionControllerTest {
     @Test
     void shouldDenyNewVersionForNonOwners() throws Exception {
         given(this.service.getPlugin(PLUGIN_NAME))
-                .willReturn(new Plugin(PLUGIN_NAME, 99, PLUGIN_NAME, ""));
+                .willReturn(new Plugin(PLUGIN_NAME, 99, PluginVisibility.PUBLIC, PLUGIN_NAME, ""));
 
         this.mvc.perform(post(BASE_PATH)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -115,7 +116,7 @@ class PluginVersionControllerTest {
                 "text/plain", "Spring Framework".getBytes());
 
         given(this.service.getPlugin(PLUGIN_NAME))
-                .willReturn(new Plugin(PLUGIN_NAME, MOCK_USER.getId(), PLUGIN_NAME, ""));
+                .willReturn(new Plugin(PLUGIN_NAME, MOCK_USER.getId(), PluginVisibility.PUBLIC, PLUGIN_NAME, ""));
 
         this.mvc.perform(multipart(BASE_PATH + "/upload").file(multipartFile).with(MOCK_USER_REQ))
                 .andExpect(status().isCreated());
@@ -129,7 +130,7 @@ class PluginVersionControllerTest {
                 "text/plain", "Spring Framework".getBytes());
 
         given(this.service.getPlugin(PLUGIN_NAME))
-                .willReturn(new Plugin(PLUGIN_NAME, 99, PLUGIN_NAME, ""));
+                .willReturn(new Plugin(PLUGIN_NAME, 99, PluginVisibility.PUBLIC, PLUGIN_NAME, ""));
 
         this.mvc.perform(multipart(BASE_PATH + "/upload").file(multipartFile).with(MOCK_USER_REQ))
                 .andExpect(status().isForbidden());

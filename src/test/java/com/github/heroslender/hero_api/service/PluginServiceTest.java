@@ -10,6 +10,7 @@ import com.github.heroslender.hero_api.exceptions.PluginVersionNotFoundException
 import com.github.heroslender.hero_api.model.Plugin;
 import com.github.heroslender.hero_api.model.PluginDtoMapper;
 import com.github.heroslender.hero_api.model.PluginVersion;
+import com.github.heroslender.hero_api.model.PluginVisibility;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,7 +32,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class PluginServiceTest {
     private static final String PLUGIN_ID = "Test";
-    private static final PluginEntity PLUGIN_TEST = new PluginEntity(PLUGIN_ID, "", "");
+    private static final PluginEntity PLUGIN_TEST = new PluginEntity(PLUGIN_ID, PluginVisibility.PUBLIC, "", "");
     private static final Plugin PLUGIN_TEST_DTO = PluginDtoMapper.toDto(PLUGIN_TEST);
     private static final Clock CLOCK = Clock.fixed(Instant.now(), ZoneOffset.UTC);
 
@@ -62,7 +63,7 @@ class PluginServiceTest {
         assertThat(result).isEmpty();
         verify(repository).findAll();
 
-        PluginEntity plugin = new PluginEntity("Test2", "", "");
+        PluginEntity plugin = new PluginEntity("Test2", PluginVisibility.PUBLIC, "", "");
         plugin.setOwner(MOCK_USER);
         when(repository.findAll()).thenReturn(List.of(PLUGIN_TEST, plugin));
 
