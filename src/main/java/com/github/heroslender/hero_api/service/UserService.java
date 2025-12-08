@@ -1,9 +1,10 @@
 package com.github.heroslender.hero_api.service;
 
-import com.github.heroslender.hero_api.dto.RegistrationDTO;
-import com.github.heroslender.hero_api.model.UserRole;
 import com.github.heroslender.hero_api.database.entity.UserEntity;
 import com.github.heroslender.hero_api.database.repository.UserRepository;
+import com.github.heroslender.hero_api.dto.RegistrationDTO;
+import com.github.heroslender.hero_api.exceptions.ResourceNotFoundException;
+import com.github.heroslender.hero_api.model.UserRole;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -29,5 +30,9 @@ public class UserService {
 
     public UserEntity getUser(String username) {
         return userRepository.findByUsername(username);
+    }
+
+    public UserEntity getUser(long id) {
+        return userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User with id '" + id + "' does not exist!"));
     }
 }

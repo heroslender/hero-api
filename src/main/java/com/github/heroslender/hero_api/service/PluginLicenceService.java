@@ -1,5 +1,6 @@
 package com.github.heroslender.hero_api.service;
 
+import com.github.heroslender.hero_api.database.entity.PluginEntity;
 import com.github.heroslender.hero_api.database.entity.PluginLicenceEntity;
 import com.github.heroslender.hero_api.database.entity.UserEntity;
 import com.github.heroslender.hero_api.database.repository.PluginLicenceRepository;
@@ -8,10 +9,7 @@ import com.github.heroslender.hero_api.dto.UpdateLicenceDTO;
 import com.github.heroslender.hero_api.exceptions.ForbiddenException;
 import com.github.heroslender.hero_api.exceptions.ResourceNotFoundException;
 import com.github.heroslender.hero_api.exceptions.UnauthorizedException;
-import com.github.heroslender.hero_api.model.Plugin;
-import com.github.heroslender.hero_api.model.PluginLicence;
-import com.github.heroslender.hero_api.model.PluginLicenceDtoMapper;
-import com.github.heroslender.hero_api.model.PluginVisibility;
+import com.github.heroslender.hero_api.model.*;
 import org.springframework.stereotype.Service;
 
 import java.time.Clock;
@@ -21,10 +19,19 @@ import java.util.UUID;
 @Service
 public class PluginLicenceService {
     private final PluginLicenceRepository repository;
+    private final PluginService pluginService;
+    private final UserService userService;
     private final Clock clock;
 
-    public PluginLicenceService(PluginLicenceRepository repository, Clock clock) {
+    public PluginLicenceService(
+            PluginLicenceRepository repository,
+            PluginService pluginService,
+            UserService userService,
+            Clock clock
+    ) {
         this.repository = repository;
+        this.pluginService = pluginService;
+        this.userService = userService;
         this.clock = clock;
     }
 
@@ -68,15 +75,42 @@ public class PluginLicenceService {
     }
 
     public PluginLicence createLicence(UserEntity user, String pluginId, NewLicenceDTO request) {
-        return null;
+        Plugin plugin = pluginService.getPlugin(pluginId);
+        if (plugin.ownerId() != user.getId() && !user.hasRole(UserRole.ADMIN)) {
+            throw new ForbiddenException("You are not the owner of this plugin.");
+        }
+
+        PluginLicenceEntity licence = new PluginLicenceEntity(
+                null, clock.millis(), request.duration(), new PluginEntity(pluginId), user
+        );
+
+        return PluginLicenceDtoMapper.toDto(repository.save(licence));
     }
 
-    public PluginLicence updateLicence(UUID licence, UpdateLicenceDTO request) {
-        return null;
+    public PluginLicence updateLicence(UUID licenceId, UpdateLicenceDTO request) {
+        PluginLicenceEntity licence = repository.findById(licenceId)
+                .orElseThrow(() -> new ResourceNotFoundException("Licence is not valid!"));
+
+        boolean hasUpdated = false;
+        if (request.ownerId() != null) {
+            UserEntity user = userService.getUser(request.ownerId());
+            licence.setOwner(user);
+            hasUpdated = true;
+        }
+        if (request.duration() != null) {
+            licence.setDuration(request.duration());
+            hasUpdated = true;
+        }
+
+        if (hasUpdated) {
+            repository.save(licence);
+        }
+
+        return PluginLicenceDtoMapper.toDto(licence);
     }
 
     public void deleteLicence(UUID licence) {
-
+        repository.deleteById(licence);
     }
 
     public UUID uuidFromString(String uuidString) {
