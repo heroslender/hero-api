@@ -30,7 +30,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class PluginLicenceServiceTest {
+public class PluginLicenceServiceTest {
     private static final Clock CLOCK = Clock.fixed(Instant.now(), ZoneOffset.UTC);
     private static final String PUBLIC_PLUGIN_ID = "Test";
     private static final PluginEntity PUBLIC_PLUGIN_ENTITY = new PluginEntity(PUBLIC_PLUGIN_ID, PluginVisibility.PUBLIC, "", "");
@@ -40,8 +40,8 @@ class PluginLicenceServiceTest {
     private static final PluginEntity PLUGIN_TEST = new PluginEntity(PLUGIN_ID, PluginVisibility.REQUIRE_LICENCE, "", "");
     private static final UUID LICENCE_ID = UUID.randomUUID();
     private static final PluginLicenceEntity LICENCE_ENTITY = new PluginLicenceEntity(LICENCE_ID, CLOCK.millis() - 10000, 14L * 1000 * 60 * 60 * 24, PLUGIN_TEST, MOCK_USER);
-    private static final PluginLicence LICENCE = PluginLicenceDtoMapper.toDto(LICENCE_ENTITY);
-    private static final Plugin PLUGIN_TEST_DTO;
+    public static final PluginLicence LICENCE = PluginLicenceDtoMapper.toDto(LICENCE_ENTITY);
+    public static final Plugin PLUGIN_TEST_DTO;
 
     static {
         PLUGIN_TEST.setOwner(MOCK_USER);
