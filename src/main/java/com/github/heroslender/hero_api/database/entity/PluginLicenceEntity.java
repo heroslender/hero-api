@@ -80,20 +80,22 @@ public class PluginLicenceEntity {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         PluginLicenceEntity that = (PluginLicenceEntity) o;
-        return Objects.equals(getId(), that.getId()) && Objects.equals(getCreatedAt(), that.getCreatedAt()) && Objects.equals(getDuration(), that.getDuration()) && Objects.equals(getPlugin(), that.getPlugin()) && Objects.equals(getOwner(), that.getOwner());
+        return Objects.equals(getId(), that.getId()) && Objects.equals(getCreatedAt(), that.getCreatedAt()) && Objects.equals(getDuration(), that.getDuration()) && Objects.equals(getPlugin().getName(), that.getPlugin().getName()) && Objects.equals(getOwner().getId(), that.getOwner().getId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId(), getCreatedAt(), getDuration(), getPlugin(), getOwner());
+        return Objects.hash(getId(), getCreatedAt(), getDuration(), getPlugin().getName(), getOwner().getId());
     }
 
     @Override
     public String toString() {
-        return "PluginLicence{" +
+        return "PluginLicenceEntity{" +
                 "id=" + id +
                 ", createdAt=" + createdAt +
                 ", duration=" + duration +
+                ", plugin=" + plugin.getName() +
+                ", owner=" + owner.getId() +
                 '}';
     }
 }
