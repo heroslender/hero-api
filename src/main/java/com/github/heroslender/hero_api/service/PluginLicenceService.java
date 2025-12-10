@@ -4,8 +4,8 @@ import com.github.heroslender.hero_api.database.entity.PluginEntity;
 import com.github.heroslender.hero_api.database.entity.PluginLicenceEntity;
 import com.github.heroslender.hero_api.database.entity.UserEntity;
 import com.github.heroslender.hero_api.database.repository.PluginLicenceRepository;
-import com.github.heroslender.hero_api.dto.NewLicenceDTO;
-import com.github.heroslender.hero_api.dto.UpdateLicenceDTO;
+import com.github.heroslender.hero_api.dto.request.CreateLicenceRequest;
+import com.github.heroslender.hero_api.dto.request.UpdateLicenceRequest;
 import com.github.heroslender.hero_api.exceptions.ForbiddenException;
 import com.github.heroslender.hero_api.exceptions.ResourceNotFoundException;
 import com.github.heroslender.hero_api.exceptions.UnauthorizedException;
@@ -74,7 +74,7 @@ public class PluginLicenceService {
         return false;
     }
 
-    public PluginLicence createLicence(UserEntity user, String pluginId, NewLicenceDTO request) {
+    public PluginLicence createLicence(UserEntity user, String pluginId, CreateLicenceRequest request) {
         Plugin plugin = pluginService.getPlugin(pluginId);
         if (plugin.ownerId() != user.getId() && !user.hasRole(UserRole.ADMIN)) {
             throw new ForbiddenException("You are not the owner of this plugin.");
@@ -87,7 +87,7 @@ public class PluginLicenceService {
         return PluginLicenceDtoMapper.toDto(repository.save(licence));
     }
 
-    public PluginLicence updateLicence(UUID licenceId, UpdateLicenceDTO request) {
+    public PluginLicence updateLicence(UUID licenceId, UpdateLicenceRequest request) {
         PluginLicenceEntity licence = repository.findById(licenceId)
                 .orElseThrow(() -> new ResourceNotFoundException("Licence is not valid!"));
 

@@ -4,7 +4,7 @@ import com.github.heroslender.hero_api.database.entity.PluginEntity;
 import com.github.heroslender.hero_api.database.entity.PluginVersionEntity;
 import com.github.heroslender.hero_api.database.repository.PluginRepository;
 import com.github.heroslender.hero_api.database.repository.PluginVersionRepository;
-import com.github.heroslender.hero_api.dto.NewPluginVersionDto;
+import com.github.heroslender.hero_api.dto.request.CreatePluginVersionRequest;
 import com.github.heroslender.hero_api.exceptions.PluginNotFoundException;
 import com.github.heroslender.hero_api.exceptions.PluginVersionNotFoundException;
 import com.github.heroslender.hero_api.model.Plugin;
@@ -109,7 +109,7 @@ class PluginServiceTest {
         when(repository.findByName(PLUGIN_ID)).thenReturn(Optional.of(PLUGIN_TEST));
         when(versionRepository.save(versionEntity)).thenReturn(versionEntity);
 
-        PluginVersion version = service.addVersion(PLUGIN_ID, "v1.0", new NewPluginVersionDto("Sample Title", ""));
+        PluginVersion version = service.addVersion(PLUGIN_ID, "v1.0", new CreatePluginVersionRequest("Sample Title", ""));
 
         assertThat(version.tag()).isEqualTo("v1.0");
         assertThat(version.releaseTitle()).isEqualTo("Sample Title");
@@ -120,8 +120,8 @@ class PluginServiceTest {
     void addVersionShouldThrowPluginNotFound() {
         when(repository.findByName(PLUGIN_ID)).thenReturn(Optional.empty());
 
-        NewPluginVersionDto newPluginVersionDto = new NewPluginVersionDto("", "");
-        assertThatThrownBy(() -> service.addVersion(PLUGIN_ID, "", newPluginVersionDto))
+        CreatePluginVersionRequest request = new CreatePluginVersionRequest("", "");
+        assertThatThrownBy(() -> service.addVersion(PLUGIN_ID, "", request))
                 .isInstanceOf(PluginNotFoundException.class);
     }
 

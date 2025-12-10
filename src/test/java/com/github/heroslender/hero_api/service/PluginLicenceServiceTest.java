@@ -4,8 +4,8 @@ import com.github.heroslender.hero_api.database.entity.PluginEntity;
 import com.github.heroslender.hero_api.database.entity.PluginLicenceEntity;
 import com.github.heroslender.hero_api.database.entity.PluginVersionEntity;
 import com.github.heroslender.hero_api.database.repository.PluginLicenceRepository;
-import com.github.heroslender.hero_api.dto.NewLicenceDTO;
-import com.github.heroslender.hero_api.dto.UpdateLicenceDTO;
+import com.github.heroslender.hero_api.dto.request.CreateLicenceRequest;
+import com.github.heroslender.hero_api.dto.request.UpdateLicenceRequest;
 import com.github.heroslender.hero_api.exceptions.ForbiddenException;
 import com.github.heroslender.hero_api.exceptions.ResourceNotFoundException;
 import com.github.heroslender.hero_api.exceptions.UnauthorizedException;
@@ -160,12 +160,12 @@ public class PluginLicenceServiceTest {
         PluginLicenceEntity newLicence = new PluginLicenceEntity(CLOCK.millis(), 14L * 1000 * 60 * 60 * 24, PLUGIN_TEST, MOCK_USER);
         when(repository.save(newLicence)).thenReturn(LICENCE_ENTITY);
 
-        NewLicenceDTO newLicenceDTO = new NewLicenceDTO(14L * 1000 * 60 * 60 * 24);
-        assertThat(service.createLicence(MOCK_USER, PLUGIN_ID, newLicenceDTO))
+        CreateLicenceRequest request = new CreateLicenceRequest(14L * 1000 * 60 * 60 * 24);
+        assertThat(service.createLicence(MOCK_USER, PLUGIN_ID, request))
                 .isEqualTo(LICENCE);
 
         when(pluginService.getPlugin(PLUGIN_ID)).thenReturn(new Plugin("test", 123123, PluginVisibility.REQUIRE_LICENCE, "", ""));
-        assertThatThrownBy(() -> service.createLicence(MOCK_USER, PLUGIN_ID, newLicenceDTO))
+        assertThatThrownBy(() -> service.createLicence(MOCK_USER, PLUGIN_ID, request))
                 .isInstanceOf(ForbiddenException.class);
     }
 
@@ -175,8 +175,8 @@ public class PluginLicenceServiceTest {
         PluginLicence licence = PluginLicenceDtoMapper.toDto(newLicence);
         when(repository.findById(LICENCE_ID)).thenReturn(Optional.of(newLicence));
 
-        UpdateLicenceDTO updateLicenceDTO = new UpdateLicenceDTO(12345L, null);
-        PluginLicence updatedLicence = service.updateLicence(LICENCE_ID, updateLicenceDTO);
+        UpdateLicenceRequest request = new UpdateLicenceRequest(12345L, null);
+        PluginLicence updatedLicence = service.updateLicence(LICENCE_ID, request);
         assertThat(updatedLicence).isNotEqualTo(licence);
         assertThat(updatedLicence.duration()).isEqualTo(12345);
         verify(repository).save(any());
@@ -184,8 +184,8 @@ public class PluginLicenceServiceTest {
         newLicence = new PluginLicenceEntity(LICENCE_ID, CLOCK.millis(), 14L * 1000 * 60 * 60 * 24, PLUGIN_TEST, MOCK_USER);
         when(repository.findById(LICENCE_ID)).thenReturn(Optional.of(newLicence));
 
-        updateLicenceDTO = new UpdateLicenceDTO(null, null);
-        updatedLicence = service.updateLicence(LICENCE_ID, updateLicenceDTO);
+        request = new UpdateLicenceRequest(null, null);
+        updatedLicence = service.updateLicence(LICENCE_ID, request);
         assertThat(updatedLicence).isEqualTo(licence);
         verify(repository, times(1)).save(any());
     }

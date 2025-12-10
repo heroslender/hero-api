@@ -2,7 +2,7 @@ package com.github.heroslender.hero_api.controller;
 
 import com.github.heroslender.hero_api.controller.hateoas.PluginVersionAssembler;
 import com.github.heroslender.hero_api.database.entity.UserEntity;
-import com.github.heroslender.hero_api.dto.NewPluginVersionDto;
+import com.github.heroslender.hero_api.dto.request.CreatePluginVersionRequest;
 import com.github.heroslender.hero_api.exceptions.DuplicatePluginVersionException;
 import com.github.heroslender.hero_api.exceptions.ForbiddenException;
 import com.github.heroslender.hero_api.exceptions.PluginVersionNotFoundException;
@@ -72,7 +72,7 @@ public class PluginVersionController {
             @AuthenticationPrincipal UserEntity user,
             @PathVariable String pluginId,
             @PathVariable String version,
-            @RequestBody NewPluginVersionDto newVersion
+            @RequestBody CreatePluginVersionRequest request
     ) {
         Plugin plugin = service.getPlugin(pluginId);
         if (plugin.ownerId() != user.getId() && !user.hasRole(UserRole.ADMIN)) {
@@ -85,7 +85,7 @@ public class PluginVersionController {
         } catch (PluginVersionNotFoundException ignored) { // Version does not exist
         }
 
-        PluginVersion saved = service.addVersion(pluginId, version, newVersion);
+        PluginVersion saved = service.addVersion(pluginId, version, request);
         EntityModel<PluginVersion> entityModel = pluginVersionAssembler.toModel(saved);
 
         return ResponseEntity

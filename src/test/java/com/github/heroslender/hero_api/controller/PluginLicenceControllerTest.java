@@ -1,7 +1,7 @@
 package com.github.heroslender.hero_api.controller;
 
-import com.github.heroslender.hero_api.dto.NewLicenceDTO;
-import com.github.heroslender.hero_api.dto.UpdateLicenceDTO;
+import com.github.heroslender.hero_api.dto.request.CreateLicenceRequest;
+import com.github.heroslender.hero_api.dto.request.UpdateLicenceRequest;
 import com.github.heroslender.hero_api.service.PluginLicenceService;
 import com.github.heroslender.hero_api.service.PluginService;
 import org.junit.jupiter.api.Test;
@@ -39,23 +39,23 @@ class PluginLicenceControllerTest {
 
     @Test
     void shouldCreateLicence() throws Exception {
-        NewLicenceDTO newLicenceDTO = new NewLicenceDTO(12345L);
+        CreateLicenceRequest request = new CreateLicenceRequest(12345L);
 
         given(pluginService.getPlugin(PLUGIN_NAME))
                 .willReturn(PLUGIN_TEST_DTO);
-        given(service.createLicence(MOCK_USER, PLUGIN_NAME, newLicenceDTO))
+        given(service.createLicence(MOCK_USER, PLUGIN_NAME, request))
                 .willReturn(LICENCE);
 
 
         mvc.perform(post(BASE_PATH)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{ \"duration\": \"" + newLicenceDTO.duration() + "\" }")
+                        .content("{ \"duration\": \"" + request.duration() + "\" }")
                         .with(MOCK_USER_REQ))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/hal+json"))
                 .andExpect(jsonPath("$.createdAt", anything()));
 
-        verify(service).createLicence(MOCK_USER, PLUGIN_NAME, newLicenceDTO);
+        verify(service).createLicence(MOCK_USER, PLUGIN_NAME, request);
     }
 
     @Test
@@ -85,7 +85,7 @@ class PluginLicenceControllerTest {
         given(pluginService.getPlugin(PLUGIN_NAME))
                 .willReturn(PLUGIN_TEST_DTO);
         given(service.uuidFromString(LICENCE.id().toString())).willReturn(LICENCE.id());
-        given(service.updateLicence(LICENCE.id(), new UpdateLicenceDTO(123L, null)))
+        given(service.updateLicence(LICENCE.id(), new UpdateLicenceRequest(123L, null)))
                 .willReturn(LICENCE);
 
         mvc.perform(put(BASE_PATH + "/" + LICENCE.id())

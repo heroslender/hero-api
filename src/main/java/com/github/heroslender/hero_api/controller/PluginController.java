@@ -2,7 +2,7 @@ package com.github.heroslender.hero_api.controller;
 
 import com.github.heroslender.hero_api.controller.hateoas.PluginAssembler;
 import com.github.heroslender.hero_api.database.entity.UserEntity;
-import com.github.heroslender.hero_api.dto.NewPluginDto;
+import com.github.heroslender.hero_api.dto.request.CreatePluginRequest;
 import com.github.heroslender.hero_api.model.Plugin;
 import com.github.heroslender.hero_api.model.PluginVisibility;
 import com.github.heroslender.hero_api.security.RequireAdminRole;
@@ -48,14 +48,14 @@ public class PluginController {
     @RequireAdminRole
     public ResponseEntity<EntityModel<Plugin>> newPlugin(
             @AuthenticationPrincipal UserEntity user,
-            @RequestBody NewPluginDto newPlugin
+            @RequestBody CreatePluginRequest request
     ) {
         Plugin plugin = new Plugin(
-                newPlugin.name(),
+                request.name(),
                 user.getId(),
                 PluginVisibility.PUBLIC,
-                newPlugin.displayName(),
-                newPlugin.description()
+                request.displayName(),
+                request.description()
         );
         EntityModel<Plugin> entityModel = assembler.toModel(service.save(plugin, user));
 

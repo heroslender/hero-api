@@ -1,9 +1,9 @@
 package com.github.heroslender.hero_api.controller;
 
 import com.github.heroslender.hero_api.database.entity.UserEntity;
-import com.github.heroslender.hero_api.dto.AuthenticationDTO;
-import com.github.heroslender.hero_api.dto.LoginResponseDTO;
-import com.github.heroslender.hero_api.dto.RegistrationDTO;
+import com.github.heroslender.hero_api.dto.request.AuthenticationRequest;
+import com.github.heroslender.hero_api.dto.response.LoginResponse;
+import com.github.heroslender.hero_api.dto.request.RegistrationRequest;
 import com.github.heroslender.hero_api.exceptions.UnauthorizedException;
 import com.github.heroslender.hero_api.security.RequireAdminRole;
 import com.github.heroslender.hero_api.security.TokenService;
@@ -38,14 +38,14 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDTO> login(@RequestBody @Valid AuthenticationDTO data) {
+    public ResponseEntity<LoginResponse> login(@RequestBody @Valid AuthenticationRequest request) {
         try {
-            UsernamePasswordAuthenticationToken usernamePassword = new UsernamePasswordAuthenticationToken(data.login(), data.password());
+            UsernamePasswordAuthenticationToken usernamePassword = new UsernamePasswordAuthenticationToken(request.login(), request.password());
             Authentication auth = authenticationManager.authenticate(usernamePassword);
 
             var token = tokenService.generateToken((UserEntity) auth.getPrincipal());
 
-            return ResponseEntity.ok(new LoginResponseDTO(token));
+            return ResponseEntity.ok(new LoginResponse(token));
         } catch (BadCredentialsException e) {
             throw new com.github.heroslender.hero_api.exceptions.BadCredentialsException();
         } catch (AuthenticationException e) {
@@ -56,13 +56,13 @@ public class AuthController {
 
     @PostMapping("/register")
     @RequireAdminRole
-    public ResponseEntity<Void> register(@RequestBody @Valid RegistrationDTO data) {
-        UserEntity user = userService.getUser(data.username());
+    public ResponseEntity<Void> register(@RequestBody @Valid RegistrationRequest request) {
+        UserEntity user = userService.getUser(request.username());
         if (user != null) {
             return ResponseEntity.badRequest().build();
         }
 
-        userService.createUser(data);
+        userService.createUser(request);
 
         return ResponseEntity.ok().build();
     }

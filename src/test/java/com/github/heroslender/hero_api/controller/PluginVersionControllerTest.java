@@ -1,6 +1,6 @@
 package com.github.heroslender.hero_api.controller;
 
-import com.github.heroslender.hero_api.dto.NewPluginVersionDto;
+import com.github.heroslender.hero_api.dto.request.CreatePluginVersionRequest;
 import com.github.heroslender.hero_api.exceptions.PluginVersionNotFoundException;
 import com.github.heroslender.hero_api.exceptions.StorageFileNotFoundException;
 import com.github.heroslender.hero_api.model.Plugin;
@@ -88,7 +88,7 @@ class PluginVersionControllerTest {
                 .willReturn(new Plugin(PLUGIN_NAME, MOCK_USER.getId(), PluginVisibility.PUBLIC, PLUGIN_NAME, ""));
         given(this.service.getVersion(PLUGIN_NAME, PLUGIN_VERSION))
                 .willThrow(new PluginVersionNotFoundException(PLUGIN_VERSION));
-        given(this.service.addVersion(PLUGIN_NAME, PLUGIN_VERSION, new NewPluginVersionDto(PLUGIN_VERSION, "")))
+        given(this.service.addVersion(PLUGIN_NAME, PLUGIN_VERSION, new CreatePluginVersionRequest(PLUGIN_VERSION, "")))
                 .willReturn(version);
 
         this.mvc.perform(post(BASE_PATH)
@@ -97,7 +97,7 @@ class PluginVersionControllerTest {
                         .with(MOCK_USER_REQ))
                 .andExpect(status().isCreated());
 
-        then(this.service).should().addVersion(PLUGIN_NAME, PLUGIN_VERSION, new NewPluginVersionDto(PLUGIN_VERSION, ""));
+        then(this.service).should().addVersion(PLUGIN_NAME, PLUGIN_VERSION, new CreatePluginVersionRequest(PLUGIN_VERSION, ""));
     }
 
     @Test

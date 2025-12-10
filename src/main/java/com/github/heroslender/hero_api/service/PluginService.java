@@ -5,7 +5,7 @@ import com.github.heroslender.hero_api.database.entity.PluginVersionEntity;
 import com.github.heroslender.hero_api.database.entity.UserEntity;
 import com.github.heroslender.hero_api.database.repository.PluginRepository;
 import com.github.heroslender.hero_api.database.repository.PluginVersionRepository;
-import com.github.heroslender.hero_api.dto.NewPluginVersionDto;
+import com.github.heroslender.hero_api.dto.request.CreatePluginVersionRequest;
 import com.github.heroslender.hero_api.exceptions.PluginNotFoundException;
 import com.github.heroslender.hero_api.exceptions.PluginVersionNotFoundException;
 import com.github.heroslender.hero_api.model.Plugin;
@@ -77,21 +77,21 @@ public class PluginService {
     /**
      * Add a version to a plugin.
      *
-     * @param pluginId   The plugin that will get the new version
-     * @param tag        The version tag
-     * @param newVersion The version data
+     * @param pluginId The plugin that will get the new version
+     * @param tag      The version tag
+     * @param request  The version data
      * @return The added plugin version
      * @throws PluginNotFoundException If the plugin was not found
      */
-    public PluginVersion addVersion(String pluginId, String tag, NewPluginVersionDto newVersion) {
+    public PluginVersion addVersion(String pluginId, String tag, CreatePluginVersionRequest request) {
         Plugin plugin = getPlugin(pluginId);
 
         PluginVersion pluginVersion = new PluginVersion(
                 pluginId,
                 tag,
                 clock.millis(),
-                newVersion.releaseTitle(),
-                newVersion.releaseNotes(),
+                request.releaseTitle(),
+                request.releaseNotes(),
                 0
         );
 

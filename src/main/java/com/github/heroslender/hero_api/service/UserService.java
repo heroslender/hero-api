@@ -2,7 +2,7 @@ package com.github.heroslender.hero_api.service;
 
 import com.github.heroslender.hero_api.database.entity.UserEntity;
 import com.github.heroslender.hero_api.database.repository.UserRepository;
-import com.github.heroslender.hero_api.dto.RegistrationDTO;
+import com.github.heroslender.hero_api.dto.request.RegistrationRequest;
 import com.github.heroslender.hero_api.exceptions.ResourceNotFoundException;
 import com.github.heroslender.hero_api.model.UserRole;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -18,11 +18,11 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public UserEntity createUser(RegistrationDTO registrationDto) {
+    public UserEntity createUser(RegistrationRequest request) {
         UserEntity user = new UserEntity();
-        user.setUsername(registrationDto.username());
-        user.setEmail(registrationDto.email());
-        user.setPassword(new BCryptPasswordEncoder().encode(registrationDto.password()));
+        user.setUsername(request.username());
+        user.setEmail(request.email());
+        user.setPassword(new BCryptPasswordEncoder().encode(request.password()));
         user.setRoles(List.of(UserRole.USER));
 
         return userRepository.save(user);

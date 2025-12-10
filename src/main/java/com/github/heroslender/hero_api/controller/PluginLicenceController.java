@@ -2,8 +2,8 @@ package com.github.heroslender.hero_api.controller;
 
 import com.github.heroslender.hero_api.controller.hateoas.PluginLicenceAssembler;
 import com.github.heroslender.hero_api.database.entity.UserEntity;
-import com.github.heroslender.hero_api.dto.NewLicenceDTO;
-import com.github.heroslender.hero_api.dto.UpdateLicenceDTO;
+import com.github.heroslender.hero_api.dto.request.CreateLicenceRequest;
+import com.github.heroslender.hero_api.dto.request.UpdateLicenceRequest;
 import com.github.heroslender.hero_api.exceptions.ForbiddenException;
 import com.github.heroslender.hero_api.model.Plugin;
 import com.github.heroslender.hero_api.model.PluginLicence;
@@ -31,7 +31,7 @@ public class PluginLicenceController {
     public EntityModel<PluginLicence> createLicence(
             @AuthenticationPrincipal UserEntity user,
             @PathVariable String pluginId,
-            @RequestBody NewLicenceDTO request
+            @RequestBody CreateLicenceRequest request
     ) {
         Plugin plugin = pluginService.getPlugin(pluginId);
         if (user == null || (plugin.ownerId() != user.getId() && !user.hasRole(UserRole.ADMIN))) {
@@ -54,7 +54,7 @@ public class PluginLicenceController {
             @AuthenticationPrincipal UserEntity user,
             @PathVariable String pluginId,
             @PathVariable String licence,
-            @RequestBody UpdateLicenceDTO request
+            @RequestBody UpdateLicenceRequest request
     ) {
         Plugin plugin = pluginService.getPlugin(pluginId);
         if (user == null || (plugin.ownerId() != user.getId() && !user.hasRole(UserRole.ADMIN))) {
