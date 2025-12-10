@@ -1,6 +1,7 @@
 package com.github.heroslender.hero_api.controller;
 
 import com.github.heroslender.hero_api.dto.NewLicenceDTO;
+import com.github.heroslender.hero_api.dto.UpdateLicenceDTO;
 import com.github.heroslender.hero_api.service.PluginLicenceService;
 import com.github.heroslender.hero_api.service.PluginService;
 import org.junit.jupiter.api.Test;
@@ -19,8 +20,7 @@ import static org.hamcrest.Matchers.anything;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @AutoConfigureMockMvc
@@ -78,5 +78,40 @@ class PluginLicenceControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/hal+json"))
                 .andExpect(jsonPath("$.pluginId", is(LICENCE.pluginId())));
+    }
+
+    @Test
+    void shouldUpdateLicence() throws Exception {
+        given(pluginService.getPlugin(PLUGIN_NAME))
+                .willReturn(PLUGIN_TEST_DTO);
+        given(service.uuidFromString(LICENCE.id().toString())).willReturn(LICENCE.id());
+        given(service.updateLicence(LICENCE.id(), new UpdateLicenceDTO(123L, null)))
+                .willReturn(LICENCE);
+
+        mvc.perform(put(BASE_PATH + "/" + LICENCE.id())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{ \"duration\": \"" + 123L + "\" }")
+                        .with(MOCK_USER_REQ))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/hal+json"))
+                .andExpect(jsonPath("$.createdAt", anything()));
+    }
+
+    @Test
+    void shouldNotUpdateLicenceForNonOwners() throws Exception {
+        given(pluginService.getPlugin(PLUGIN_NAME))
+                .willReturn(PLUGIN_TEST_DTO);
+
+        mvc.perform(put(BASE_PATH + "/" + LICENCE.id())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{ \"duration\": \"" + 123L + "\" }"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void shouldDeleteLicence() throws Exception {
+        mvc.perform(delete(BASE_PATH + "/" + LICENCE.id()))
+                .andExpect(status().isOk());
+
     }
 }

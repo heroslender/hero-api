@@ -57,7 +57,7 @@ public class PluginLicenceController {
             @RequestBody UpdateLicenceDTO request
     ) {
         Plugin plugin = pluginService.getPlugin(pluginId);
-        if (plugin.ownerId() != user.getId() && !user.hasRole(UserRole.ADMIN)) {
+        if (user == null || (plugin.ownerId() != user.getId() && !user.hasRole(UserRole.ADMIN))) {
             throw new ForbiddenException("You are not the owner of this plugin.");
         }
 
