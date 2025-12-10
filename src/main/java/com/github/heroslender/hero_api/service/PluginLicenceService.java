@@ -10,6 +10,7 @@ import com.github.heroslender.hero_api.exceptions.ForbiddenException;
 import com.github.heroslender.hero_api.exceptions.ResourceNotFoundException;
 import com.github.heroslender.hero_api.exceptions.UnauthorizedException;
 import com.github.heroslender.hero_api.model.*;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.Clock;
@@ -17,23 +18,12 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class PluginLicenceService {
     private final PluginLicenceRepository repository;
     private final PluginService pluginService;
     private final UserService userService;
     private final Clock clock;
-
-    public PluginLicenceService(
-            PluginLicenceRepository repository,
-            PluginService pluginService,
-            UserService userService,
-            Clock clock
-    ) {
-        this.repository = repository;
-        this.pluginService = pluginService;
-        this.userService = userService;
-        this.clock = clock;
-    }
 
     public Optional<PluginLicence> getLicenceOpt(UUID id) {
         return repository.findById(id).map(PluginLicenceDtoMapper::toDto);

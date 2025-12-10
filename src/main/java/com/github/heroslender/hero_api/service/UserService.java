@@ -5,18 +5,16 @@ import com.github.heroslender.hero_api.database.repository.UserRepository;
 import com.github.heroslender.hero_api.dto.request.RegistrationRequest;
 import com.github.heroslender.hero_api.exceptions.ResourceNotFoundException;
 import com.github.heroslender.hero_api.model.UserRole;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
-
-    public UserService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
 
     public UserEntity createUser(RegistrationRequest request) {
         UserEntity user = new UserEntity();

@@ -11,6 +11,7 @@ import com.github.heroslender.hero_api.exceptions.PluginVersionNotFoundException
 import com.github.heroslender.hero_api.model.Plugin;
 import com.github.heroslender.hero_api.model.PluginDtoMapper;
 import com.github.heroslender.hero_api.model.PluginVersion;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.Clock;
@@ -18,16 +19,11 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class PluginService {
     private final PluginRepository pluginRepository;
     private final PluginVersionRepository pluginVersionRepository;
     private final Clock clock;
-
-    public PluginService(PluginRepository pluginRepository, PluginVersionRepository pluginVersionRepository, Clock clock) {
-        this.pluginRepository = pluginRepository;
-        this.pluginVersionRepository = pluginVersionRepository;
-        this.clock = clock;
-    }
 
     /**
      * Get all plugins saved in the database.

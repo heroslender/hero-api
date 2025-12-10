@@ -2,13 +2,14 @@ package com.github.heroslender.hero_api.controller;
 
 import com.github.heroslender.hero_api.database.entity.UserEntity;
 import com.github.heroslender.hero_api.dto.request.AuthenticationRequest;
-import com.github.heroslender.hero_api.dto.response.LoginResponse;
 import com.github.heroslender.hero_api.dto.request.RegistrationRequest;
+import com.github.heroslender.hero_api.dto.response.LoginResponse;
 import com.github.heroslender.hero_api.exceptions.UnauthorizedException;
 import com.github.heroslender.hero_api.security.RequireAdminRole;
 import com.github.heroslender.hero_api.security.TokenService;
 import com.github.heroslender.hero_api.service.UserService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -25,17 +26,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("auth")
+@RequiredArgsConstructor
 public class AuthController {
     private final TokenService tokenService;
     private final UserService userService;
     private final AuthenticationManager authenticationManager;
-    Logger logger = LoggerFactory.getLogger(AuthController.class);
 
-    public AuthController(TokenService tokenService, UserService userService, AuthenticationManager authenticationManager) {
-        this.tokenService = tokenService;
-        this.userService = userService;
-        this.authenticationManager = authenticationManager;
-    }
+    Logger logger = LoggerFactory.getLogger(AuthController.class);
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody @Valid AuthenticationRequest request) {

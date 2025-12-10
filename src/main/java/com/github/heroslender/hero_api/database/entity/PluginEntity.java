@@ -2,6 +2,10 @@ package com.github.heroslender.hero_api.database.entity;
 
 import com.github.heroslender.hero_api.model.PluginVisibility;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
 
 import java.util.ArrayList;
@@ -9,6 +13,10 @@ import java.util.List;
 import java.util.Objects;
 
 @Entity
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class PluginEntity {
     @Id
     private String name;
@@ -26,9 +34,6 @@ public class PluginEntity {
     @OneToMany(mappedBy = "plugin", fetch = FetchType.LAZY)
     private List<PluginVersionEntity> versions = new ArrayList<>();
 
-    public PluginEntity() {
-    }
-
     public PluginEntity(String name) {
         this(name, PluginVisibility.PUBLIC, name, null);
     }
@@ -40,68 +45,31 @@ public class PluginEntity {
         this.descrition = descrition;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public UserEntity getOwner() {
-        return owner;
-    }
-
-    public void setOwner(UserEntity owner) {
-        this.owner = owner;
-    }
-
-    public String getDisplayName() {
-        return displayName;
-    }
-
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
-    }
-
-    public String getDescrition() {
-        return descrition;
-    }
-
-    public void setDescrition(String descrition) {
-        this.descrition = descrition;
-    }
-
-    public PluginVisibility getVisibility() {
-        return visibility;
-    }
-
-    public void setVisibility(PluginVisibility visibility) {
-        this.visibility = visibility;
-    }
-
-    public List<PluginVersionEntity> getVersions() {
-        return versions;
-    }
-
-    public void setVersions(List<PluginVersionEntity> versions) {
-        this.versions = versions;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         PluginEntity that = (PluginEntity) o;
-        return Objects.equals(getName(), that.getName()) && Objects.equals(getDisplayName(), that.getDisplayName()) && Objects.equals(getDescrition(), that.getDescrition());
+        return Objects.equals(getName(), that.getName())
+                && Objects.equals(getOwner().getId(), that.getOwner().getId())
+                && Objects.equals(getDisplayName(), that.getDisplayName())
+                && Objects.equals(getDescrition(), that.getDescrition())
+                && getVisibility() == that.getVisibility();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getName(), getDisplayName(), getDescrition());
+        return Objects.hash(getName(), getOwner().getId(), getDisplayName(), getDescrition(), getVisibility());
     }
+
 
     @Override
     public String toString() {
         return "PluginEntity{" +
                 "name='" + name + '\'' +
+                ", owner=" + owner.getId() +
                 ", displayName='" + displayName + '\'' +
                 ", descrition='" + descrition + '\'' +
+                ", visibility=" + visibility +
                 '}';
     }
 }

@@ -13,6 +13,7 @@ import com.github.heroslender.hero_api.security.RequireDeveloperRole;
 import com.github.heroslender.hero_api.service.PluginLicenceService;
 import com.github.heroslender.hero_api.service.PluginService;
 import com.github.heroslender.hero_api.service.PluginVersionStorageService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
@@ -29,22 +30,12 @@ import java.util.Locale;
 
 @RestController
 @RequestMapping("/plugins/{pluginId}/versions")
+@RequiredArgsConstructor
 public class PluginVersionController {
     private final PluginService service;
     private final PluginVersionStorageService storageService;
     private final PluginLicenceService licenceService;
     private final PluginVersionAssembler pluginVersionAssembler;
-
-    public PluginVersionController(
-            PluginService service,
-            PluginVersionStorageService storageService, PluginLicenceService licenceService,
-            PluginVersionAssembler pluginVersionAssembler
-    ) {
-        this.service = service;
-        this.storageService = storageService;
-        this.licenceService = licenceService;
-        this.pluginVersionAssembler = pluginVersionAssembler;
-    }
 
     @GetMapping
     public CollectionModel<EntityModel<PluginVersion>> versions(

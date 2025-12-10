@@ -25,6 +25,10 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-hateoas")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-validation")
+
+    implementation("org.projectlombok:lombok")
+    annotationProcessor("org.projectlombok:lombok")
+
     implementation("com.auth0:java-jwt:4.5.0")
     runtimeOnly("com.mysql:mysql-connector-j")
 

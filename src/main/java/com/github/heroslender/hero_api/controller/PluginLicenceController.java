@@ -10,22 +10,18 @@ import com.github.heroslender.hero_api.model.PluginLicence;
 import com.github.heroslender.hero_api.model.UserRole;
 import com.github.heroslender.hero_api.service.PluginLicenceService;
 import com.github.heroslender.hero_api.service.PluginService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/plugins/{pluginId}/licence")
+@RequiredArgsConstructor
 public class PluginLicenceController {
     private final PluginLicenceService service;
     private final PluginService pluginService;
     private final PluginLicenceAssembler assembler;
-
-    public PluginLicenceController(PluginLicenceService service, PluginService pluginService, PluginLicenceAssembler assembler) {
-        this.service = service;
-        this.pluginService = pluginService;
-        this.assembler = assembler;
-    }
 
     @PostMapping()
     public EntityModel<PluginLicence> createLicence(

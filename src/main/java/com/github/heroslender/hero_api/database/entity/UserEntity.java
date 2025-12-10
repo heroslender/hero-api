@@ -2,6 +2,10 @@ package com.github.heroslender.hero_api.database.entity;
 
 import com.github.heroslender.hero_api.model.UserRole;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -12,6 +16,10 @@ import java.util.List;
 import java.util.Objects;
 
 @Entity(name = "users")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserEntity implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,9 +34,6 @@ public class UserEntity implements UserDetails {
     @Enumerated(EnumType.STRING)
     private List<UserRole> roles = new ArrayList<>();
 
-    public UserEntity() {
-    }
-
     public UserEntity(Long id) {
         this.id = id;
     }
@@ -38,34 +43,6 @@ public class UserEntity implements UserDetails {
         this.email = email;
         this.password = password;
         this.roles = roles;
-    }
-
-    public UserEntity(Long id, String username, String email, String password, List<UserRole> roles) {
-        this.id = id;
-        this.username = username;
-        this.email = email;
-        this.password = password;
-        this.roles = roles;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
     }
 
     @Override
@@ -92,32 +69,20 @@ public class UserEntity implements UserDetails {
         return hasRole(UserRole.valueOf(role));
     }
 
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public List<UserRole> getRoles() {
-        return roles;
-    }
-
-    public void setRoles(List<UserRole> roles) {
-        this.roles = roles;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         UserEntity user = (UserEntity) o;
-        return Objects.equals(getId(), user.getId()) && Objects.equals(getUsername(), user.getUsername()) && Objects.equals(getEmail(), user.getEmail()) && Objects.equals(getRoles(), user.getRoles());
+        return Objects.equals(getId(), user.getId())
+                && Objects.equals(getUsername(), user.getUsername())
+                && Objects.equals(getEmail(), user.getEmail())
+                && Objects.equals(getPassword(), user.getPassword())
+                && Objects.equals(getRoles(), user.getRoles());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId(), getUsername(), getEmail(), getRoles());
+        return Objects.hash(getId(), getUsername(), getEmail(), getPassword(), getRoles());
     }
 
     @Override
@@ -126,6 +91,7 @@ public class UserEntity implements UserDetails {
                 "id=" + id +
                 ", username='" + username + '\'' +
                 ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
                 ", roles=" + roles +
                 '}';
     }

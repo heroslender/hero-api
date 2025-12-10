@@ -8,6 +8,7 @@ import com.github.heroslender.hero_api.model.PluginVisibility;
 import com.github.heroslender.hero_api.security.RequireAdminRole;
 import com.github.heroslender.hero_api.service.PluginLicenceService;
 import com.github.heroslender.hero_api.service.PluginService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.IanaLinkRelations;
@@ -19,17 +20,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
 public class PluginController {
     private final PluginService service;
     private final PluginLicenceService licenceService;
-
     private final PluginAssembler assembler;
-
-    public PluginController(PluginService service, PluginLicenceService licenceService, PluginAssembler assembler) {
-        this.service = service;
-        this.licenceService = licenceService;
-        this.assembler = assembler;
-    }
 
     @GetMapping("/plugins")
     public CollectionModel<EntityModel<Plugin>> plugins(@AuthenticationPrincipal UserEntity user) {
