@@ -7,6 +7,7 @@ import org.springframework.hateoas.server.core.Relation;
 public record Plugin(
         String name,
         long ownerId,
+        PluginVisibility visibility,
         String displayName,
         @JsonInclude(JsonInclude.Include.NON_NULL)
         String description

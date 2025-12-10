@@ -11,6 +11,7 @@ public class PluginDtoMapper {
         return new Plugin(
                 plugin.getName(),
                 plugin.getOwner().getId(),
+                plugin.getVisibility(),
                 plugin.getDisplayName(),
                 plugin.getDescrition()
         );
@@ -19,6 +20,7 @@ public class PluginDtoMapper {
     public static PluginEntity fromDto(Plugin dto) {
         return new PluginEntity(
                 dto.name(),
+                dto.visibility(),
                 dto.displayName(),
                 dto.description()
         );

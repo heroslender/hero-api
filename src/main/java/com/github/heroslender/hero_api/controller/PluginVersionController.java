@@ -2,14 +2,15 @@ package com.github.heroslender.hero_api.controller;
 
 import com.github.heroslender.hero_api.controller.hateoas.PluginVersionAssembler;
 import com.github.heroslender.hero_api.database.entity.UserEntity;
-import com.github.heroslender.hero_api.model.UserRole;
 import com.github.heroslender.hero_api.dto.NewPluginVersionDto;
 import com.github.heroslender.hero_api.exceptions.DuplicatePluginVersionException;
 import com.github.heroslender.hero_api.exceptions.ForbiddenException;
 import com.github.heroslender.hero_api.exceptions.PluginVersionNotFoundException;
 import com.github.heroslender.hero_api.model.Plugin;
 import com.github.heroslender.hero_api.model.PluginVersion;
+import com.github.heroslender.hero_api.model.UserRole;
 import com.github.heroslender.hero_api.security.RequireDeveloperRole;
+import com.github.heroslender.hero_api.service.PluginLicenceService;
 import com.github.heroslender.hero_api.service.PluginService;
 import com.github.heroslender.hero_api.service.PluginVersionStorageService;
 import org.springframework.core.io.Resource;
@@ -31,20 +32,28 @@ import java.util.Locale;
 public class PluginVersionController {
     private final PluginService service;
     private final PluginVersionStorageService storageService;
+    private final PluginLicenceService licenceService;
     private final PluginVersionAssembler pluginVersionAssembler;
 
     public PluginVersionController(
             PluginService service,
-            PluginVersionStorageService storageService,
+            PluginVersionStorageService storageService, PluginLicenceService licenceService,
             PluginVersionAssembler pluginVersionAssembler
     ) {
         this.service = service;
         this.storageService = storageService;
+        this.licenceService = licenceService;
         this.pluginVersionAssembler = pluginVersionAssembler;
     }
 
     @GetMapping
-    public CollectionModel<EntityModel<PluginVersion>> versions(@PathVariable String pluginId) {
+    public CollectionModel<EntityModel<PluginVersion>> versions(
+            @AuthenticationPrincipal UserEntity user,
+            @PathVariable String pluginId
+    ) {
+        Plugin plugin = service.getPlugin(pluginId);
+        licenceService.checkUserAccessToPlugin(user, plugin);
+
         List<PluginVersion> versions = service.getVersions(pluginId);
 
         return pluginVersionAssembler.toCollectionModel(versions);
@@ -103,7 +112,14 @@ public class PluginVersionController {
     }
 
     @GetMapping("/{version}/download")
-    public ResponseEntity<Resource> download(@PathVariable String pluginId, @PathVariable String version) {
+    public ResponseEntity<Resource> download(
+            @AuthenticationPrincipal UserEntity user,
+            @PathVariable String pluginId,
+            @PathVariable String version
+    ) {
+        Plugin plugin = service.getPlugin(pluginId);
+        licenceService.checkUserAccessToPlugin(user, plugin);
+
         String filename = buildFilename(pluginId, version);
         Resource file = storageService.loadAsResource(filename);
 

@@ -1,0 +1,31 @@
+package com.github.heroslender.hero_api.model;
+
+import com.github.heroslender.hero_api.database.entity.PluginEntity;
+import com.github.heroslender.hero_api.database.entity.PluginLicenceEntity;
+import com.github.heroslender.hero_api.database.entity.UserEntity;
+
+public class PluginLicenceDtoMapper {
+
+    private PluginLicenceDtoMapper() {
+    }
+
+    public static PluginLicence toDto(PluginLicenceEntity entity) {
+        return new PluginLicence(
+                entity.getId(),
+                entity.getCreatedAt(),
+                entity.getDuration(),
+                entity.getPlugin().getName(),
+                entity.getOwner().getId()
+        );
+    }
+
+    public static PluginLicenceEntity fromDto(PluginLicence dto) {
+        return new PluginLicenceEntity(
+                dto.id(),
+                dto.createdAt(),
+                dto.duration(),
+                new PluginEntity(dto.pluginId()),
+                new UserEntity(dto.ownerId())
+        );
+    }
+}

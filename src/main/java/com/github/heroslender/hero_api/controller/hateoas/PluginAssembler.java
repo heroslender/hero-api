@@ -18,17 +18,17 @@ public class PluginAssembler implements RepresentationModelAssembler<Plugin, Ent
     @Override
     public EntityModel<Plugin> toModel(Plugin entity) {
         return EntityModel.of(entity,
-                linkTo(methodOn(PluginController.class).plugin(entity.name())).withSelfRel(),
-                linkTo(methodOn(PluginController.class).plugins()).withRel("plugins")
+                linkTo(methodOn(PluginController.class).plugin(null, entity.name())).withSelfRel(),
+                linkTo(methodOn(PluginController.class).plugins(null)).withRel("plugins")
         );
     }
 
     @Override
     public CollectionModel<EntityModel<Plugin>> toCollectionModel(Iterable<? extends Plugin> entities) {
-        List<EntityModel<Plugin>> employees = StreamSupport.stream(entities.spliterator(), false)
+        List<EntityModel<Plugin>> plugins = StreamSupport.stream(entities.spliterator(), false)
                 .map(this::toModel)
                 .toList();
 
-        return CollectionModel.of(employees, linkTo(methodOn(PluginController.class).plugins()).withSelfRel());
+        return CollectionModel.of(plugins, linkTo(methodOn(PluginController.class).plugins(null)).withSelfRel());
     }
 }

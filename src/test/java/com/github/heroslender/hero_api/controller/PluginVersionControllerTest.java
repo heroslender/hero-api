@@ -5,6 +5,7 @@ import com.github.heroslender.hero_api.exceptions.PluginVersionNotFoundException
 import com.github.heroslender.hero_api.exceptions.StorageFileNotFoundException;
 import com.github.heroslender.hero_api.model.Plugin;
 import com.github.heroslender.hero_api.model.PluginVersion;
+import com.github.heroslender.hero_api.model.PluginVisibility;
 import com.github.heroslender.hero_api.service.PluginService;
 import com.github.heroslender.hero_api.service.PluginVersionStorageService;
 import org.junit.jupiter.api.Test;
@@ -20,7 +21,6 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.io.File;
 import java.util.Collections;
-import java.util.Optional;
 
 import static com.github.heroslender.hero_api.security.MockUser.MOCK_USER;
 import static com.github.heroslender.hero_api.security.MockUser.MOCK_USER_REQ;
@@ -37,6 +37,7 @@ class PluginVersionControllerTest {
     private static final String PLUGIN_VERSION = "v1.0";
     private static final String PLUGIN_VERSION_FILE = PLUGIN_NAME + "-" + PLUGIN_VERSION + ".jar";
     private static final String BASE_PATH = "/plugins/" + PLUGIN_NAME + "/versions/" + PLUGIN_VERSION;
+    private static final Plugin PLUGIN = new Plugin(PLUGIN_NAME, 99, PluginVisibility.PUBLIC, PLUGIN_NAME, "");
 
     @Autowired
     private MockMvc mvc;
@@ -47,6 +48,8 @@ class PluginVersionControllerTest {
 
     @Test
     void shouldGiveVersionList() throws Exception {
+        given(this.service.getPlugin(PLUGIN_NAME))
+                .willReturn(PLUGIN);
         given(this.service.getVersions(PLUGIN_NAME))
                 .willReturn(Collections.emptyList());
 
@@ -82,7 +85,7 @@ class PluginVersionControllerTest {
         );
 
         given(this.service.getPlugin(PLUGIN_NAME))
-                .willReturn(new Plugin(PLUGIN_NAME, MOCK_USER.getId(), PLUGIN_NAME, ""));
+                .willReturn(new Plugin(PLUGIN_NAME, MOCK_USER.getId(), PluginVisibility.PUBLIC, PLUGIN_NAME, ""));
         given(this.service.getVersion(PLUGIN_NAME, PLUGIN_VERSION))
                 .willThrow(new PluginVersionNotFoundException(PLUGIN_VERSION));
         given(this.service.addVersion(PLUGIN_NAME, PLUGIN_VERSION, new NewPluginVersionDto(PLUGIN_VERSION, "")))
@@ -100,7 +103,7 @@ class PluginVersionControllerTest {
     @Test
     void shouldDenyNewVersionForNonOwners() throws Exception {
         given(this.service.getPlugin(PLUGIN_NAME))
-                .willReturn(new Plugin(PLUGIN_NAME, 99, PLUGIN_NAME, ""));
+                .willReturn(PLUGIN);
 
         this.mvc.perform(post(BASE_PATH)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -115,7 +118,7 @@ class PluginVersionControllerTest {
                 "text/plain", "Spring Framework".getBytes());
 
         given(this.service.getPlugin(PLUGIN_NAME))
-                .willReturn(new Plugin(PLUGIN_NAME, MOCK_USER.getId(), PLUGIN_NAME, ""));
+                .willReturn(new Plugin(PLUGIN_NAME, MOCK_USER.getId(), PluginVisibility.PUBLIC, PLUGIN_NAME, ""));
 
         this.mvc.perform(multipart(BASE_PATH + "/upload").file(multipartFile).with(MOCK_USER_REQ))
                 .andExpect(status().isCreated());
@@ -129,7 +132,7 @@ class PluginVersionControllerTest {
                 "text/plain", "Spring Framework".getBytes());
 
         given(this.service.getPlugin(PLUGIN_NAME))
-                .willReturn(new Plugin(PLUGIN_NAME, 99, PLUGIN_NAME, ""));
+                .willReturn(PLUGIN);
 
         this.mvc.perform(multipart(BASE_PATH + "/upload").file(multipartFile).with(MOCK_USER_REQ))
                 .andExpect(status().isForbidden());
@@ -141,6 +144,8 @@ class PluginVersionControllerTest {
     void shouldDownloadFile() throws Exception {
         File file = File.createTempFile("file", null);
 
+        given(this.service.getPlugin(PLUGIN_NAME))
+                .willReturn(PLUGIN);
         given(this.storageService.loadAsResource(PLUGIN_VERSION_FILE))
                 .willReturn(new UrlResource(file.toURI()));
 
@@ -151,6 +156,8 @@ class PluginVersionControllerTest {
 
     @Test
     void should404WhenMissingFile() throws Exception {
+        given(this.service.getPlugin(PLUGIN_NAME))
+                .willReturn(PLUGIN);
         given(this.storageService.loadAsResource(PLUGIN_VERSION_FILE))
                 .willThrow(StorageFileNotFoundException.class);
 
