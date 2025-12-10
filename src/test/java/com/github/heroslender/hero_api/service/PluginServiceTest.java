@@ -31,7 +31,7 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class PluginServiceTest {
-    private static final String PLUGIN_ID = "Test
+    private static final String PLUGIN_ID = "Test";
     private static final PluginEntity PLUGIN_TEST = new PluginEntity(PLUGIN_ID, PluginVisibility.PUBLIC, "", "");
     private static final Plugin PLUGIN_TEST_DTO;
     private static final Clock CLOCK = Clock.fixed(Instant.now(), ZoneOffset.UTC);
