@@ -9,6 +9,6 @@ import java.util.List;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 
 public class MockUser {
-    public static final UserEntity MOCK_USER = new UserEntity(1L, "test", "test@email.com", "", List.of(UserRole.USER));
+    public static final UserEntity MOCK_USER = new UserEntity(1L, "test", "test@email.com", "", List.of(UserRole.DEVELOPER));
     public static final RequestPostProcessor MOCK_USER_REQ = user(MOCK_USER);
 }
