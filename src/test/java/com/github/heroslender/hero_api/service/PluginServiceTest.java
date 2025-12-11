@@ -8,7 +8,7 @@ import com.github.heroslender.hero_api.dto.request.CreatePluginVersionRequest;
 import com.github.heroslender.hero_api.exceptions.PluginNotFoundException;
 import com.github.heroslender.hero_api.exceptions.PluginVersionNotFoundException;
 import com.github.heroslender.hero_api.model.Plugin;
-import com.github.heroslender.hero_api.model.PluginDtoMapper;
+import com.github.heroslender.hero_api.model.mapper.PluginDtoMapper;
 import com.github.heroslender.hero_api.model.PluginVersion;
 import com.github.heroslender.hero_api.model.PluginVisibility;
 import org.junit.jupiter.api.BeforeEach;

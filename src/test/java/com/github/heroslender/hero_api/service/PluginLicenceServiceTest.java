@@ -10,6 +10,8 @@ import com.github.heroslender.hero_api.exceptions.ForbiddenException;
 import com.github.heroslender.hero_api.exceptions.ResourceNotFoundException;
 import com.github.heroslender.hero_api.exceptions.UnauthorizedException;
 import com.github.heroslender.hero_api.model.*;
+import com.github.heroslender.hero_api.model.mapper.PluginDtoMapper;
+import com.github.heroslender.hero_api.model.mapper.PluginLicenceDtoMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

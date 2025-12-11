@@ -1,7 +1,9 @@
-package com.github.heroslender.hero_api.model;
+package com.github.heroslender.hero_api.model.mapper;
 
 import com.github.heroslender.hero_api.database.entity.PluginEntity;
 import com.github.heroslender.hero_api.database.entity.PluginVersionEntity;
+import com.github.heroslender.hero_api.model.Plugin;
+import com.github.heroslender.hero_api.model.PluginVersion;
 
 public class PluginDtoMapper {
     private PluginDtoMapper() {
