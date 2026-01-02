@@ -10,6 +10,7 @@ import com.github.heroslender.hero_api.model.UserRole;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.List;
 
@@ -23,7 +24,7 @@ public class LoadDatabaseConfiguration {
 
             UserEntity user = userRepository.findByUsername("heroslender");
             if (user == null) {
-                user = new UserEntity("heroslender", "hero@email.com", "123", List.of(UserRole.DEVELOPER));
+                user = new UserEntity("heroslender", "hero@email.com", new BCryptPasswordEncoder().encode("123"), List.of(UserRole.DEVELOPER));
                 user = userRepository.save(user);
             }
 
