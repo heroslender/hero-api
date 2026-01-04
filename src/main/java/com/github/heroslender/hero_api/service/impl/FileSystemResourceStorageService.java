@@ -1,13 +1,10 @@
 package com.github.heroslender.hero_api.service.impl;
 
-import com.github.heroslender.hero_api.config.StorageProperties;
 import com.github.heroslender.hero_api.exceptions.StorageException;
 import com.github.heroslender.hero_api.exceptions.StorageFileNotFoundException;
-import com.github.heroslender.hero_api.service.PluginVersionStorageService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.github.heroslender.hero_api.service.ResourceStorageService;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
-import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -20,17 +17,15 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.stream.Stream;
 
-@Service
-public class FileSystemPluginVersionStorageService implements PluginVersionStorageService {
+public class FileSystemResourceStorageService implements ResourceStorageService {
     private final Path rootLocation;
 
-    @Autowired
-    public FileSystemPluginVersionStorageService(StorageProperties properties) {
-        if (properties.getLocation().trim().isEmpty()) {
+    public FileSystemResourceStorageService(String folderLocation) {
+        if (folderLocation.trim().isEmpty()) {
             throw new StorageException("File upload location can not be Empty.");
         }
 
-        this.rootLocation = Paths.get(properties.getLocation());
+        this.rootLocation = Paths.get(folderLocation);
 
         init();
     }
@@ -41,17 +36,13 @@ public class FileSystemPluginVersionStorageService implements PluginVersionStora
             if (file.isEmpty()) {
                 throw new StorageException("Failed to store empty file.");
             }
-            Path destinationFile = this.rootLocation
-                    .resolve(Paths.get(filename))
-                    .normalize()
-                    .toAbsolutePath();
+            Path destinationFile = this.rootLocation.resolve(Paths.get(filename)).normalize().toAbsolutePath();
             if (!destinationFile.getParent().equals(this.rootLocation.toAbsolutePath())) {
                 // This is a security check
                 throw new StorageException("Cannot store file outside current directory.");
             }
             try (InputStream inputStream = file.getInputStream()) {
-                Files.copy(inputStream, destinationFile,
-                        StandardCopyOption.REPLACE_EXISTING);
+                Files.copy(inputStream, destinationFile, StandardCopyOption.REPLACE_EXISTING);
             }
         } catch (IOException e) {
             throw new StorageException("Failed to store file.");
@@ -60,9 +51,8 @@ public class FileSystemPluginVersionStorageService implements PluginVersionStora
 
     @Override
     public Stream<Path> loadAll() {
-        try(Stream<Path> files = Files.walk(this.rootLocation, 1)) {
-            return files.filter(path -> !path.equals(this.rootLocation))
-                    .map(this.rootLocation::relativize);
+        try (Stream<Path> files = Files.walk(this.rootLocation, 1)) {
+            return files.filter(path -> !path.equals(this.rootLocation)).map(this.rootLocation::relativize);
         } catch (IOException e) {
             throw new StorageException("Failed to read stored files");
         }
@@ -82,8 +72,7 @@ public class FileSystemPluginVersionStorageService implements PluginVersionStora
             if (resource.exists() || resource.isReadable()) {
                 return resource;
             } else {
-                throw new StorageFileNotFoundException(
-                        "Could not read file: " + filename);
+                throw new StorageFileNotFoundException("Could not read file: " + filename);
 
             }
         } catch (MalformedURLException e) {

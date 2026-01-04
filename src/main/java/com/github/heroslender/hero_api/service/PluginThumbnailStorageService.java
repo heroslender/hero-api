@@ -5,9 +5,9 @@ import com.github.heroslender.hero_api.service.impl.FileSystemResourceStorageSer
 import org.springframework.stereotype.Service;
 
 @Service
-public class PluginVersionStorageService extends FileSystemResourceStorageService {
+public class PluginThumbnailStorageService extends FileSystemResourceStorageService {
 
-    public PluginVersionStorageService(StorageProperties properties) {
-        super(properties.getLocation());
+    public PluginThumbnailStorageService(StorageProperties properties) {
+        super(properties.getThumbnailsLocation());
     }
 }
