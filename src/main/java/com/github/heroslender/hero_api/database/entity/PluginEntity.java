@@ -9,66 +9,72 @@ import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-@Entity
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Entity(name = "plugins")
 public class PluginEntity {
     @Id
+    private String id;
+
+    @Column(nullable = false)
     private String name;
+
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "owner_id", referencedColumnName = "id", unique = false)
+    @JoinColumn(name = "owner_id", referencedColumnName = "id", nullable = false)
     private UserEntity owner;
-    private String displayName;
-    private String descrition;
 
     @Column(nullable = false)
     @ColumnDefault("'PUBLIC'")
     @Enumerated(EnumType.STRING)
     private PluginVisibility visibility = PluginVisibility.PUBLIC;
 
+    private Float price;
+    private Float promoPrice;
+    private String tagline;
+    private String description;
+
     @OneToMany(mappedBy = "plugin", fetch = FetchType.LAZY)
     private List<PluginVersionEntity> versions = new ArrayList<>();
 
-    public PluginEntity(String name) {
-        this(name, PluginVisibility.PUBLIC, name, null);
-    }
-
-    public PluginEntity(String name, PluginVisibility visibility, String displayName, String descrition) {
-        this.name = name;
-        this.visibility = visibility;
-        this.displayName = displayName;
-        this.descrition = descrition;
+    public PluginEntity(String id) {
+        this(id, id, null, PluginVisibility.PUBLIC, 0.0F, 0.0F, "", "", Collections.emptyList());
     }
 
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         PluginEntity that = (PluginEntity) o;
-        return Objects.equals(getName(), that.getName())
+        return Objects.equals(getId(), that.getId())
                 && Objects.equals(getOwner().getId(), that.getOwner().getId())
-                && Objects.equals(getDisplayName(), that.getDisplayName())
-                && Objects.equals(getDescrition(), that.getDescrition())
+                && Objects.equals(getName(), that.getName())
+                && Objects.equals(getPrice(), that.getPrice())
+                && Objects.equals(getPromoPrice(), that.getPromoPrice())
+                && Objects.equals(getTagline(), that.getTagline())
+                && Objects.equals(getDescription(), that.getDescription())
                 && getVisibility() == that.getVisibility();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getName(), getOwner().getId(), getDisplayName(), getDescrition(), getVisibility());
+        return Objects.hash(getId(), getOwner().getId(), getName(), getPrice(), getPromoPrice(), getTagline(), getDescription(), getVisibility());
     }
-
 
     @Override
     public String toString() {
         return "PluginEntity{" +
-                "name='" + name + '\'' +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
                 ", owner=" + owner.getId() +
-                ", displayName='" + displayName + '\'' +
-                ", descrition='" + descrition + '\'' +
+                ", price=" + price +
+                ", promoPrice=" + promoPrice +
+                ", tagline='" + tagline + '\'' +
+                ", description='" + description + '\'' +
                 ", visibility=" + visibility +
                 '}';
     }

@@ -48,7 +48,7 @@ public class PluginLicenceService {
         return plugin.visibility() == PluginVisibility.PUBLIC
                 || (plugin.visibility() == PluginVisibility.REQUIRE_LICENCE
                 && user != null
-                && hasLicence(user.getId(), plugin.name()));
+                && hasLicence(user.getId(), plugin.id()));
     }
 
     public void checkUserAccessToPlugin(UserEntity user, Plugin plugin) {
@@ -57,7 +57,7 @@ public class PluginLicenceService {
 
     public boolean hasLicence(Long userId, String plugin) {
         for (PluginLicenceEntity licence : repository.findByOwnerId(userId)) {
-            if (licence.getPlugin().getName().equalsIgnoreCase(plugin)) {
+            if (licence.getPlugin().getId().equalsIgnoreCase(plugin)) {
                 return true;
             }
         }

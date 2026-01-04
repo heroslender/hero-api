@@ -35,11 +35,11 @@ import static org.mockito.Mockito.*;
 public class PluginLicenceServiceTest {
     private static final Clock CLOCK = Clock.fixed(Instant.now(), ZoneOffset.UTC);
     private static final String PUBLIC_PLUGIN_ID = "Test";
-    private static final PluginEntity PUBLIC_PLUGIN_ENTITY = new PluginEntity(PUBLIC_PLUGIN_ID, PluginVisibility.PUBLIC, "", "");
+    private static final PluginEntity PUBLIC_PLUGIN_ENTITY = new PluginEntity(PUBLIC_PLUGIN_ID);
     private static final Plugin PUBLIC_PLUGIN;
 
     private static final String PLUGIN_ID = "PaidPlugin";
-    private static final PluginEntity PLUGIN_TEST = new PluginEntity(PLUGIN_ID, PluginVisibility.REQUIRE_LICENCE, "", "");
+    private static final PluginEntity PLUGIN_TEST = new PluginEntity(PLUGIN_ID);
     private static final UUID LICENCE_ID = UUID.randomUUID();
     private static final PluginLicenceEntity LICENCE_ENTITY = new PluginLicenceEntity(LICENCE_ID, CLOCK.millis() - 10000, 14L * 1000 * 60 * 60 * 24, PLUGIN_TEST, MOCK_USER);
     public static final PluginLicence LICENCE = PluginLicenceDtoMapper.toDto(LICENCE_ENTITY);
@@ -47,6 +47,7 @@ public class PluginLicenceServiceTest {
 
     static {
         PLUGIN_TEST.setOwner(MOCK_USER);
+        PLUGIN_TEST.setVisibility(PluginVisibility.REQUIRE_LICENCE);
         PLUGIN_TEST.setVersions(List.of(
                 new PluginVersionEntity(PLUGIN_TEST, "v1.0", CLOCK.millis(), "Sample Title", "", 0)
         ));
@@ -166,7 +167,7 @@ public class PluginLicenceServiceTest {
         assertThat(service.createLicence(MOCK_USER, PLUGIN_ID, request))
                 .isEqualTo(LICENCE);
 
-        when(pluginService.getPlugin(PLUGIN_ID)).thenReturn(new Plugin("test", 123123, PluginVisibility.REQUIRE_LICENCE, "", ""));
+        when(pluginService.getPlugin(PLUGIN_ID)).thenReturn(new Plugin("test", "test", 123123, PluginVisibility.REQUIRE_LICENCE, 0F, 0F, "", ""));
         assertThatThrownBy(() -> service.createLicence(MOCK_USER, PLUGIN_ID, request))
                 .isInstanceOf(ForbiddenException.class);
     }

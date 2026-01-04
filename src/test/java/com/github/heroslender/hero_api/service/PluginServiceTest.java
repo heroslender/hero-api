@@ -32,7 +32,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class PluginServiceTest {
     private static final String PLUGIN_ID = "Test";
-    private static final PluginEntity PLUGIN_TEST = new PluginEntity(PLUGIN_ID, PluginVisibility.PUBLIC, "", "");
+    private static final PluginEntity PLUGIN_TEST = new PluginEntity(PLUGIN_ID);
     private static final Plugin PLUGIN_TEST_DTO;
     private static final Clock CLOCK = Clock.fixed(Instant.now(), ZoneOffset.UTC);
 
@@ -65,19 +65,19 @@ class PluginServiceTest {
         assertThat(result).isEmpty();
         verify(repository).findAll();
 
-        PluginEntity plugin = new PluginEntity("Test2", PluginVisibility.PUBLIC, "", "");
+        PluginEntity plugin = new PluginEntity("Test2");
         plugin.setOwner(MOCK_USER);
         when(repository.findAll()).thenReturn(List.of(PLUGIN_TEST, plugin));
 
         result = service.getPlugins();
         assertThat(result).hasSize(2);
-        assertThat(result.getFirst().name()).isEqualTo(PLUGIN_ID);
+        assertThat(result.getFirst().id()).isEqualTo(PLUGIN_ID);
         verify(repository, times(2)).findAll();
     }
 
     @Test
     void testGetPlugin() {
-        when(repository.findByName(PLUGIN_ID)).thenReturn(Optional.of(PLUGIN_TEST));
+        when(repository.findById(PLUGIN_ID)).thenReturn(Optional.of(PLUGIN_TEST));
 
         Optional<Plugin> plugin = service.getPluginOpt(PLUGIN_ID);
 
@@ -85,11 +85,11 @@ class PluginServiceTest {
                 .isPresent()
                 .contains(PLUGIN_TEST_DTO);
 
-        when(repository.findByName(PLUGIN_ID)).thenReturn(Optional.empty());
+        when(repository.findById(PLUGIN_ID)).thenReturn(Optional.empty());
 
         plugin = service.getPluginOpt(PLUGIN_ID);
         assertThat(plugin).isNotPresent();
-        verify(repository, times(2)).findByName(PLUGIN_ID);
+        verify(repository, times(2)).findById(PLUGIN_ID);
     }
 
     @Test
@@ -98,7 +98,7 @@ class PluginServiceTest {
 
         Plugin save = service.save(PLUGIN_TEST_DTO, MOCK_USER);
 
-        assertThat(save.name()).isEqualTo(PLUGIN_TEST_DTO.name());
+        assertThat(save.id()).isEqualTo(PLUGIN_TEST_DTO.id());
         verify(repository).save(PLUGIN_TEST);
     }
 
@@ -106,7 +106,7 @@ class PluginServiceTest {
     void testAddVersion() {
         PluginVersionEntity versionEntity = new PluginVersionEntity(PLUGIN_TEST, "v1.0", CLOCK.millis(), "Sample Title", "", 0);
 
-        when(repository.findByName(PLUGIN_ID)).thenReturn(Optional.of(PLUGIN_TEST));
+        when(repository.findById(PLUGIN_ID)).thenReturn(Optional.of(PLUGIN_TEST));
         when(versionRepository.save(versionEntity)).thenReturn(versionEntity);
 
         PluginVersion version = service.addVersion(PLUGIN_ID, "v1.0", new CreatePluginVersionRequest("Sample Title", ""));
@@ -118,7 +118,7 @@ class PluginServiceTest {
 
     @Test
     void addVersionShouldThrowPluginNotFound() {
-        when(repository.findByName(PLUGIN_ID)).thenReturn(Optional.empty());
+        when(repository.findById(PLUGIN_ID)).thenReturn(Optional.empty());
 
         CreatePluginVersionRequest request = new CreatePluginVersionRequest("", "");
         assertThatThrownBy(() -> service.addVersion(PLUGIN_ID, "", request))
@@ -127,7 +127,7 @@ class PluginServiceTest {
 
     @Test
     void testGetVersion() {
-        when(repository.findByName(PLUGIN_ID)).thenReturn(Optional.of(PLUGIN_TEST));
+        when(repository.findById(PLUGIN_ID)).thenReturn(Optional.of(PLUGIN_TEST));
 
         PluginVersion version = service.getVersion(PLUGIN_ID, "v1.0");
 
@@ -139,11 +139,11 @@ class PluginServiceTest {
 
     @Test
     void testGetVersions() {
-        when(repository.findByName(PLUGIN_ID)).thenReturn(Optional.of(PLUGIN_TEST));
+        when(repository.findById(PLUGIN_ID)).thenReturn(Optional.of(PLUGIN_TEST));
 
         List<PluginVersion> versions = service.getVersions(PLUGIN_ID);
 
         assertThat(versions).isNotEmpty();
-        verify(repository).findByName(PLUGIN_ID);
+        verify(repository).findById(PLUGIN_ID);
     }
 }

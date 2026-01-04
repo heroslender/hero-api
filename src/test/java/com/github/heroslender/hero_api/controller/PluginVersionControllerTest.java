@@ -37,7 +37,7 @@ class PluginVersionControllerTest {
     private static final String PLUGIN_VERSION = "v1.0";
     private static final String PLUGIN_VERSION_FILE = PLUGIN_NAME + "-" + PLUGIN_VERSION + ".jar";
     private static final String BASE_PATH = "/plugins/" + PLUGIN_NAME + "/versions/" + PLUGIN_VERSION;
-    private static final Plugin PLUGIN = new Plugin(PLUGIN_NAME, 99, PluginVisibility.PUBLIC, PLUGIN_NAME, "");
+    private static final Plugin PLUGIN = new Plugin(PLUGIN_NAME, 99);
 
     @Autowired
     private MockMvc mvc;
@@ -85,7 +85,7 @@ class PluginVersionControllerTest {
         );
 
         given(this.service.getPlugin(PLUGIN_NAME))
-                .willReturn(new Plugin(PLUGIN_NAME, MOCK_USER.getId(), PluginVisibility.PUBLIC, PLUGIN_NAME, ""));
+                .willReturn(new Plugin(PLUGIN_NAME, MOCK_USER.getId()));
         given(this.service.getVersion(PLUGIN_NAME, PLUGIN_VERSION))
                 .willThrow(new PluginVersionNotFoundException(PLUGIN_VERSION));
         given(this.service.addVersion(PLUGIN_NAME, PLUGIN_VERSION, new CreatePluginVersionRequest(PLUGIN_VERSION, "")))
@@ -118,7 +118,7 @@ class PluginVersionControllerTest {
                 "text/plain", "Spring Framework".getBytes());
 
         given(this.service.getPlugin(PLUGIN_NAME))
-                .willReturn(new Plugin(PLUGIN_NAME, MOCK_USER.getId(), PluginVisibility.PUBLIC, PLUGIN_NAME, ""));
+                .willReturn(new Plugin(PLUGIN_NAME, MOCK_USER.getId()));
 
         this.mvc.perform(multipart(BASE_PATH + "/upload").file(multipartFile).with(MOCK_USER_REQ))
                 .andExpect(status().isCreated());

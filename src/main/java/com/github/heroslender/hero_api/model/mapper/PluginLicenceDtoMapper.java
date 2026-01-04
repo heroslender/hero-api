@@ -15,7 +15,7 @@ public class PluginLicenceDtoMapper {
                 entity.getId(),
                 entity.getCreatedAt(),
                 entity.getDuration(),
-                entity.getPlugin().getName(),
+                entity.getPlugin().getId(),
                 entity.getOwner().getId()
         );
     }

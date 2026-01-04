@@ -2,6 +2,7 @@ package com.github.heroslender.hero_api.controller.hateoas;
 
 import com.github.heroslender.hero_api.controller.PluginController;
 import com.github.heroslender.hero_api.model.Plugin;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
@@ -16,15 +17,15 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @Component
 public class PluginAssembler implements RepresentationModelAssembler<Plugin, EntityModel<Plugin>> {
     @Override
-    public EntityModel<Plugin> toModel(Plugin entity) {
+    public @NonNull EntityModel<Plugin> toModel(@NonNull Plugin entity) {
         return EntityModel.of(entity,
-                linkTo(methodOn(PluginController.class).plugin(null, entity.name())).withSelfRel(),
+                linkTo(methodOn(PluginController.class).plugin(null, entity.id())).withSelfRel(),
                 linkTo(methodOn(PluginController.class).plugins(null)).withRel("plugins")
         );
     }
 
     @Override
-    public CollectionModel<EntityModel<Plugin>> toCollectionModel(Iterable<? extends Plugin> entities) {
+    public @NonNull CollectionModel<EntityModel<Plugin>> toCollectionModel(@NonNull Iterable<? extends Plugin> entities) {
         List<EntityModel<Plugin>> plugins = StreamSupport.stream(entities.spliterator(), false)
                 .map(this::toModel)
                 .toList();

@@ -41,7 +41,7 @@ public class PluginVersionEntity {
         if (o == null || getClass() != o.getClass()) return false;
         PluginVersionEntity that = (PluginVersionEntity) o;
         return Objects.equals(getId(), that.getId())
-                && Objects.equals(getPlugin().getName(), that.getPlugin().getName())
+                && Objects.equals(getPlugin().getId(), that.getPlugin().getId())
                 && Objects.equals(getTag(), that.getTag())
                 && Objects.equals(getReleasedAt(), that.getReleasedAt())
                 && Objects.equals(getReleaseTitle(), that.getReleaseTitle())
@@ -51,14 +51,14 @@ public class PluginVersionEntity {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId(), getPlugin().getName(), getTag(), getReleasedAt(), getReleaseTitle(), getReleaseNotes(), getDownloadCount());
+        return Objects.hash(getId(), getPlugin().getId(), getTag(), getReleasedAt(), getReleaseTitle(), getReleaseNotes(), getDownloadCount());
     }
 
     @Override
     public String toString() {
         return "PluginVersion{" +
                 "id=" + id +
-                ", plugin=" + plugin.getName() +
+                ", plugin=" + plugin.getId() +
                 ", tag='" + tag + '\'' +
                 ", releasedAt=" + releasedAt +
                 ", releaseTitle='" + releaseTitle + '\'' +

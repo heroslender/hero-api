@@ -3,9 +3,9 @@ package com.github.heroslender.hero_api.controller;
 import com.github.heroslender.hero_api.controller.hateoas.PluginAssembler;
 import com.github.heroslender.hero_api.database.entity.UserEntity;
 import com.github.heroslender.hero_api.dto.request.CreatePluginRequest;
+import com.github.heroslender.hero_api.dto.request.UpdatePluginRequest;
 import com.github.heroslender.hero_api.exceptions.ForbiddenException;
 import com.github.heroslender.hero_api.model.Plugin;
-import com.github.heroslender.hero_api.model.PluginVisibility;
 import com.github.heroslender.hero_api.model.UserRole;
 import com.github.heroslender.hero_api.security.RequireAdminRole;
 import com.github.heroslender.hero_api.security.RequireDeveloperRole;
@@ -55,14 +55,7 @@ public class PluginController {
             @AuthenticationPrincipal UserEntity user,
             @RequestBody CreatePluginRequest request
     ) {
-        Plugin plugin = new Plugin(
-                request.name(),
-                user.getId(),
-                PluginVisibility.PUBLIC,
-                request.displayName(),
-                request.description()
-        );
-        EntityModel<Plugin> entityModel = assembler.toModel(service.save(plugin, user));
+        EntityModel<Plugin> entityModel = assembler.toModel(service.newPlugin(request, user));
 
         return ResponseEntity
                 .created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri())
@@ -104,14 +97,18 @@ public class PluginController {
     }
 
     @PutMapping("/plugins/{id}")
-    @RequireAdminRole
+    @RequireDeveloperRole
     public ResponseEntity<EntityModel<Plugin>> updatePlugin(
             @AuthenticationPrincipal UserEntity user,
-            @RequestBody Plugin newPlugin,
-            @PathVariable String id
+            @PathVariable String id,
+            @RequestBody UpdatePluginRequest request
     ) {
-        Plugin updatedPlugin = service.save(newPlugin, user);
+        Plugin plugin = service.getPlugin(id);
+        if (plugin.ownerId() != user.getId() && !user.hasRole(UserRole.ADMIN)) {
+            throw new ForbiddenException("You are not the owner of this plugin.");
+        }
 
+        Plugin updatedPlugin = service.update(plugin, request);
         EntityModel<Plugin> entityModel = assembler.toModel(updatedPlugin);
 
         return ResponseEntity

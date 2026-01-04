@@ -44,13 +44,13 @@ public class PluginLicenceEntity {
         return Objects.equals(getId(), that.getId())
                 && Objects.equals(getCreatedAt(), that.getCreatedAt())
                 && Objects.equals(getDuration(), that.getDuration())
-                && Objects.equals(getPlugin().getName(), that.getPlugin().getName())
+                && Objects.equals(getPlugin().getId(), that.getPlugin().getId())
                 && Objects.equals(getOwner().getId(), that.getOwner().getId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId(), getCreatedAt(), getDuration(), getPlugin().getName(), getOwner().getId());
+        return Objects.hash(getId(), getCreatedAt(), getDuration(), getPlugin().getId(), getOwner().getId());
     }
 
     @Override
@@ -59,7 +59,7 @@ public class PluginLicenceEntity {
                 "id=" + id +
                 ", createdAt=" + createdAt +
                 ", duration=" + duration +
-                ", plugin=" + plugin.getName() +
+                ", plugin=" + plugin.getId() +
                 ", owner=" + owner.getId() +
                 '}';
     }

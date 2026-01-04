@@ -5,12 +5,15 @@ import com.github.heroslender.hero_api.database.entity.PluginVersionEntity;
 import com.github.heroslender.hero_api.database.entity.UserEntity;
 import com.github.heroslender.hero_api.database.repository.PluginRepository;
 import com.github.heroslender.hero_api.database.repository.PluginVersionRepository;
+import com.github.heroslender.hero_api.dto.request.CreatePluginRequest;
 import com.github.heroslender.hero_api.dto.request.CreatePluginVersionRequest;
+import com.github.heroslender.hero_api.dto.request.UpdatePluginRequest;
 import com.github.heroslender.hero_api.exceptions.PluginNotFoundException;
 import com.github.heroslender.hero_api.exceptions.PluginVersionNotFoundException;
 import com.github.heroslender.hero_api.model.Plugin;
-import com.github.heroslender.hero_api.model.mapper.PluginDtoMapper;
 import com.github.heroslender.hero_api.model.PluginVersion;
+import com.github.heroslender.hero_api.model.PluginVisibility;
+import com.github.heroslender.hero_api.model.mapper.PluginDtoMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -52,7 +55,29 @@ public class PluginService {
      * @return An Optional containing the plugin if found
      */
     public Optional<Plugin> getPluginOpt(String id) {
-        return pluginRepository.findByName(id).map(PluginDtoMapper::toDto);
+        return pluginRepository.findById(id).map(PluginDtoMapper::toDto);
+    }
+
+    /**
+     * Save a new plugin to the database.
+     *
+     * @param request The plugin details to create
+     * @param owner   The user creating the plugin
+     * @return The new plugin
+     */
+    public Plugin newPlugin(CreatePluginRequest request, UserEntity owner) {
+        Plugin plugin = new Plugin(
+                request.name(),
+                request.displayName(),
+                owner.getId(),
+                PluginVisibility.PUBLIC,
+                request.price(),
+                null,
+                request.tagline(),
+                request.description()
+        );
+
+        return save(plugin, owner);
     }
 
     /**
@@ -67,6 +92,39 @@ public class PluginService {
         entity.setOwner(owner);
         PluginEntity pl = pluginRepository.save(entity);
 
+        return PluginDtoMapper.toDto(pl);
+    }
+
+    /**
+     * Update some plugin.
+     *
+     * @param plugin The plugin to be updated
+     * @param request The new data
+     * @return The updated plugin
+     */
+    public Plugin update(Plugin plugin, UpdatePluginRequest request) {
+        PluginEntity entity = PluginDtoMapper.fromDto(plugin);
+
+        if (request.displayName() != null) {
+            entity.setName(request.displayName());
+        }
+        if (request.visibility() != null) {
+            entity.setVisibility(request.visibility());
+        }
+        if (request.price() != null) {
+            entity.setPrice(request.price());
+        }
+        if (request.promoPrice() != null) {
+            entity.setPromoPrice(request.promoPrice());
+        }
+        if (request.tagline() != null) {
+            entity.setTagline(request.tagline());
+        }
+        if (request.description() != null) {
+            entity.setDescription(request.description());
+        }
+
+        PluginEntity pl = pluginRepository.save(entity);
         return PluginDtoMapper.toDto(pl);
     }
 
@@ -101,7 +159,7 @@ public class PluginService {
      * @param id The ID of the plugin
      */
     public void delete(String id) {
-        pluginRepository.deleteByName(id);
+        pluginRepository.deleteById(id);
     }
 
     /**
@@ -112,7 +170,7 @@ public class PluginService {
      * @throws PluginNotFoundException If the plugin was not found
      */
     public List<PluginVersion> getVersions(String pluginId) {
-        PluginEntity pl = pluginRepository.findByName(pluginId).orElseThrow(() -> new PluginNotFoundException(pluginId));
+        PluginEntity pl = pluginRepository.findById(pluginId).orElseThrow(() -> new PluginNotFoundException(pluginId));
 
         return pl.getVersions().stream().map(PluginDtoMapper::toDto).toList();
     }
