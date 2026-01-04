@@ -5,6 +5,7 @@ import com.github.heroslender.hero_api.database.entity.UserEntity;
 import com.github.heroslender.hero_api.dto.request.CreatePluginRequest;
 import com.github.heroslender.hero_api.dto.request.UpdatePluginRequest;
 import com.github.heroslender.hero_api.exceptions.ForbiddenException;
+import com.github.heroslender.hero_api.exceptions.ResourceNotFoundException;
 import com.github.heroslender.hero_api.model.Plugin;
 import com.github.heroslender.hero_api.model.UserRole;
 import com.github.heroslender.hero_api.security.RequireAdminRole;
@@ -71,10 +72,15 @@ public class PluginController {
     }
 
     @GetMapping("/plugins/{id}/thumbnail")
-    public ResponseEntity<byte[]> getPluginThumbnail(@PathVariable String id) throws IOException {
+    public ResponseEntity<byte[]> getPluginThumbnail(@PathVariable String id) {
         service.getPlugin(id);
-        byte[] bytes = Files.readAllBytes(thumbnailService.load(id + ".jpg"));
-        return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).body(bytes);
+
+        try {
+            byte[] bytes = Files.readAllBytes(thumbnailService.load(id + ".jpg"));
+            return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).body(bytes);
+        } catch (IOException e) {
+            throw new ResourceNotFoundException("Plugin thumbnail not found.");
+        }
     }
 
     @PostMapping("/plugins/{id}/thumbnail")

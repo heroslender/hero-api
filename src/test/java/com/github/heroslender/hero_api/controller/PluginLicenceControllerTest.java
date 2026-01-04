@@ -12,10 +12,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static com.github.heroslender.hero_api.MockData.PAID_PLUGIN_DTO;
 import static com.github.heroslender.hero_api.security.MockUser.MOCK_USER;
 import static com.github.heroslender.hero_api.security.MockUser.MOCK_USER_REQ;
 import static com.github.heroslender.hero_api.service.PluginLicenceServiceTest.LICENCE;
-import static com.github.heroslender.hero_api.service.PluginLicenceServiceTest.PLUGIN_TEST_DTO;
 import static org.hamcrest.Matchers.anything;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.BDDMockito.given;
@@ -42,7 +42,7 @@ class PluginLicenceControllerTest {
         CreateLicenceRequest request = new CreateLicenceRequest(12345L);
 
         given(pluginService.getPlugin(PLUGIN_NAME))
-                .willReturn(PLUGIN_TEST_DTO);
+                .willReturn(PAID_PLUGIN_DTO);
         given(service.createLicence(MOCK_USER, PLUGIN_NAME, request))
                 .willReturn(LICENCE);
 
@@ -61,7 +61,7 @@ class PluginLicenceControllerTest {
     @Test
     void shouldNotCreateLicenceForNonOwners() throws Exception {
         given(pluginService.getPlugin(PLUGIN_NAME))
-                .willReturn(PLUGIN_TEST_DTO);
+                .willReturn(PAID_PLUGIN_DTO);
 
         mvc.perform(post(BASE_PATH)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -83,7 +83,7 @@ class PluginLicenceControllerTest {
     @Test
     void shouldUpdateLicence() throws Exception {
         given(pluginService.getPlugin(PLUGIN_NAME))
-                .willReturn(PLUGIN_TEST_DTO);
+                .willReturn(PAID_PLUGIN_DTO);
         given(service.uuidFromString(LICENCE.id().toString())).willReturn(LICENCE.id());
         given(service.updateLicence(LICENCE.id(), new UpdateLicenceRequest(123L, null)))
                 .willReturn(LICENCE);
@@ -100,7 +100,7 @@ class PluginLicenceControllerTest {
     @Test
     void shouldNotUpdateLicenceForNonOwners() throws Exception {
         given(pluginService.getPlugin(PLUGIN_NAME))
-                .willReturn(PLUGIN_TEST_DTO);
+                .willReturn(PAID_PLUGIN_DTO);
 
         mvc.perform(put(BASE_PATH + "/" + LICENCE.id())
                         .contentType(MediaType.APPLICATION_JSON)

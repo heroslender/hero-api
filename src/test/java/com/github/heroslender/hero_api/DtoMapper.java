@@ -1,13 +1,15 @@
-package com.github.heroslender.hero_api.model.mapper;
+package com.github.heroslender.hero_api;
 
 import com.github.heroslender.hero_api.database.entity.PluginEntity;
+import com.github.heroslender.hero_api.database.entity.PluginLicenceEntity;
 import com.github.heroslender.hero_api.database.entity.PluginVersionEntity;
 import com.github.heroslender.hero_api.database.entity.UserEntity;
 import com.github.heroslender.hero_api.model.Plugin;
+import com.github.heroslender.hero_api.model.PluginLicence;
 import com.github.heroslender.hero_api.model.PluginVersion;
 
-public class PluginDtoMapper {
-    private PluginDtoMapper() {
+public class DtoMapper {
+    private DtoMapper() {
     }
 
     public static Plugin toDto(PluginEntity plugin) {
@@ -24,6 +26,7 @@ public class PluginDtoMapper {
     }
 
     public static PluginEntity fromDto(Plugin dto) {
+
         return new PluginEntity(
                 dto.id(),
                 dto.name(),
@@ -58,6 +61,32 @@ public class PluginDtoMapper {
                 dto.releaseTitle(),
                 dto.releaseNotes(),
                 dto.downloadCount()
+        );
+    }
+
+    public static PluginLicence toDto(PluginLicenceEntity entity) {
+        return new PluginLicence(
+                entity.getId(),
+                entity.getCreatedAt(),
+                entity.getDuration(),
+                entity.getPlugin().getId(),
+                entity.getOwner().getId()
+        );
+    }
+
+    public static PluginLicenceEntity fromDto(PluginLicence dto) {
+        PluginEntity plugin = new PluginEntity();
+        plugin.setId(dto.pluginId());
+
+        UserEntity owner = new UserEntity();
+        owner.setId(dto.ownerId());
+
+        return new PluginLicenceEntity(
+                dto.id(),
+                dto.createdAt(),
+                dto.duration(),
+                plugin,
+                owner
         );
     }
 }

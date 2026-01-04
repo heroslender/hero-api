@@ -26,11 +26,12 @@ public class LoadDatabaseConfiguration {
                 user = new UserEntity("heroslender", "hero@email.com", new BCryptPasswordEncoder().encode("123"), List.of(UserRole.DEVELOPER));
                 user = userRepository.save(user);
             }
+            UserEntity finalUser = user;
 
             PluginEntity plugin = repository
                     .findById("Crates")
                     .orElseGet(() ->
-                            repository.save(new PluginEntity("crates", "Crates", new UserEntity(1L), PluginVisibility.PUBLIC, 0F, 0F, "", "", Collections.emptyList()))
+                            repository.save(new PluginEntity("crates", "Crates", finalUser, PluginVisibility.PUBLIC, 0F, 0F, "", "", Collections.emptyList()))
                     );
 
             if (licenceRepository.findAll().isEmpty()) {

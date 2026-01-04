@@ -9,8 +9,11 @@ import com.github.heroslender.hero_api.dto.request.UpdateLicenceRequest;
 import com.github.heroslender.hero_api.exceptions.ForbiddenException;
 import com.github.heroslender.hero_api.exceptions.ResourceNotFoundException;
 import com.github.heroslender.hero_api.exceptions.UnauthorizedException;
-import com.github.heroslender.hero_api.model.*;
-import com.github.heroslender.hero_api.model.mapper.PluginLicenceDtoMapper;
+import com.github.heroslender.hero_api.model.Plugin;
+import com.github.heroslender.hero_api.model.PluginLicence;
+import com.github.heroslender.hero_api.model.PluginVisibility;
+import com.github.heroslender.hero_api.model.UserRole;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -25,9 +28,10 @@ public class PluginLicenceService {
     private final PluginService pluginService;
     private final UserService userService;
     private final Clock clock;
+    private final EntityManager entityManager;
 
     public Optional<PluginLicence> getLicenceOpt(UUID id) {
-        return repository.findById(id).map(PluginLicenceDtoMapper::toDto);
+        return repository.findById(id).map(this::toDto);
     }
 
     public PluginLicence getLicence(UUID id) {
@@ -72,10 +76,10 @@ public class PluginLicenceService {
         }
 
         PluginLicenceEntity licence = new PluginLicenceEntity(
-                null, clock.millis(), request.duration(), new PluginEntity(pluginId), user
+                null, clock.millis(), request.duration(), entityManager.getReference(PluginEntity.class, pluginId), user
         );
 
-        return PluginLicenceDtoMapper.toDto(repository.save(licence));
+        return toDto(repository.save(licence));
     }
 
     public PluginLicence updateLicence(UUID licenceId, UpdateLicenceRequest request) {
@@ -97,7 +101,7 @@ public class PluginLicenceService {
             repository.save(licence);
         }
 
-        return PluginLicenceDtoMapper.toDto(licence);
+        return toDto(licence);
     }
 
     public void deleteLicence(UUID licence) {
@@ -106,5 +110,25 @@ public class PluginLicenceService {
 
     public UUID uuidFromString(String uuidString) {
         return UUID.fromString(uuidString);
+    }
+
+    public PluginLicence toDto(PluginLicenceEntity entity) {
+        return new PluginLicence(
+                entity.getId(),
+                entity.getCreatedAt(),
+                entity.getDuration(),
+                entity.getPlugin().getId(),
+                entity.getOwner().getId()
+        );
+    }
+
+    public PluginLicenceEntity fromDto(PluginLicence dto) {
+        return new PluginLicenceEntity(
+                dto.id(),
+                dto.createdAt(),
+                dto.duration(),
+                entityManager.getReference(PluginEntity.class, dto.pluginId()),
+                entityManager.getReference(UserEntity.class, dto.ownerId())
+        );
     }
 }

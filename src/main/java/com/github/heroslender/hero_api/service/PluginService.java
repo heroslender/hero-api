@@ -13,7 +13,7 @@ import com.github.heroslender.hero_api.exceptions.PluginVersionNotFoundException
 import com.github.heroslender.hero_api.model.Plugin;
 import com.github.heroslender.hero_api.model.PluginVersion;
 import com.github.heroslender.hero_api.model.PluginVisibility;
-import com.github.heroslender.hero_api.model.mapper.PluginDtoMapper;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +27,7 @@ public class PluginService {
     private final PluginRepository pluginRepository;
     private final PluginVersionRepository pluginVersionRepository;
     private final Clock clock;
+    private final EntityManager entityManager;
 
     /**
      * Get all plugins saved in the database.
@@ -34,7 +35,7 @@ public class PluginService {
      * @return A list containing all stored plugins
      */
     public List<Plugin> getPlugins() {
-        return pluginRepository.findAll().stream().map(PluginDtoMapper::toDto).toList();
+        return pluginRepository.findAll().stream().map(this::toDto).toList();
     }
 
     /**
@@ -55,7 +56,7 @@ public class PluginService {
      * @return An Optional containing the plugin if found
      */
     public Optional<Plugin> getPluginOpt(String id) {
-        return pluginRepository.findById(id).map(PluginDtoMapper::toDto);
+        return pluginRepository.findById(id).map(this::toDto);
     }
 
     /**
@@ -88,22 +89,22 @@ public class PluginService {
      * @return The saved plugin
      */
     public Plugin save(Plugin plugin, UserEntity owner) {
-        PluginEntity entity = PluginDtoMapper.fromDto(plugin);
+        PluginEntity entity = fromDto(plugin);
         entity.setOwner(owner);
         PluginEntity pl = pluginRepository.save(entity);
 
-        return PluginDtoMapper.toDto(pl);
+        return toDto(pl);
     }
 
     /**
      * Update some plugin.
      *
-     * @param plugin The plugin to be updated
+     * @param plugin  The plugin to be updated
      * @param request The new data
      * @return The updated plugin
      */
     public Plugin update(Plugin plugin, UpdatePluginRequest request) {
-        PluginEntity entity = PluginDtoMapper.fromDto(plugin);
+        PluginEntity entity = fromDto(plugin);
 
         if (request.displayName() != null) {
             entity.setName(request.displayName());
@@ -125,7 +126,7 @@ public class PluginService {
         }
 
         PluginEntity pl = pluginRepository.save(entity);
-        return PluginDtoMapper.toDto(pl);
+        return toDto(pl);
     }
 
     /**
@@ -138,7 +139,7 @@ public class PluginService {
      * @throws PluginNotFoundException If the plugin was not found
      */
     public PluginVersion addVersion(String pluginId, String tag, CreatePluginVersionRequest request) {
-        Plugin plugin = getPlugin(pluginId);
+        getPlugin(pluginId);
 
         PluginVersion pluginVersion = new PluginVersion(
                 pluginId,
@@ -149,8 +150,8 @@ public class PluginService {
                 0
         );
 
-        PluginVersionEntity saved = pluginVersionRepository.save(PluginDtoMapper.fromDto(pluginVersion, plugin));
-        return PluginDtoMapper.toDto(saved);
+        PluginVersionEntity saved = pluginVersionRepository.save(fromDto(pluginVersion));
+        return toDto(saved);
     }
 
     /**
@@ -172,7 +173,7 @@ public class PluginService {
     public List<PluginVersion> getVersions(String pluginId) {
         PluginEntity pl = pluginRepository.findById(pluginId).orElseThrow(() -> new PluginNotFoundException(pluginId));
 
-        return pl.getVersions().stream().map(PluginDtoMapper::toDto).toList();
+        return pl.getVersions().stream().map(this::toDto).toList();
     }
 
     /**
@@ -198,5 +199,57 @@ public class PluginService {
 
     public void deleteVersion(long version) {
         pluginVersionRepository.deleteById(version);
+    }
+
+
+    public Plugin toDto(PluginEntity plugin) {
+        return new Plugin(
+                plugin.getId(),
+                plugin.getName(),
+                plugin.getOwner().getId(),
+                plugin.getVisibility(),
+                plugin.getPrice(),
+                plugin.getPromoPrice(),
+                plugin.getTagline(),
+                plugin.getDescription()
+        );
+    }
+
+    public PluginEntity fromDto(Plugin dto) {
+        return new PluginEntity(
+                dto.id(),
+                dto.name(),
+                entityManager.getReference(UserEntity.class, dto.ownerId()),
+                dto.visibility(),
+                dto.price(),
+                dto.promoPrice(),
+                dto.tagline(),
+                dto.description(),
+                null
+        );
+    }
+
+    public PluginVersion toDto(PluginVersionEntity version) {
+        return new PluginVersion(
+                version.getId(),
+                version.getPlugin().getId(),
+                version.getTag(),
+                version.getReleasedAt(),
+                version.getReleaseTitle(),
+                version.getReleaseNotes(),
+                version.getDownloadCount()
+        );
+    }
+
+    public PluginVersionEntity fromDto(PluginVersion dto) {
+        return new PluginVersionEntity(
+                dto.id(),
+                entityManager.getReference(PluginEntity.class, dto.pluginId()),
+                dto.tag(),
+                dto.releasedAt(),
+                dto.releaseTitle(),
+                dto.releaseNotes(),
+                dto.downloadCount()
+        );
     }
 }
