@@ -5,14 +5,13 @@ import com.github.heroslender.hero_api.database.entity.UserEntity;
 import com.github.heroslender.hero_api.dto.request.CreatePluginRequest;
 import com.github.heroslender.hero_api.dto.request.UpdatePluginRequest;
 import com.github.heroslender.hero_api.exceptions.ForbiddenException;
-import com.github.heroslender.hero_api.exceptions.ResourceNotFoundException;
 import com.github.heroslender.hero_api.model.Plugin;
 import com.github.heroslender.hero_api.model.UserRole;
 import com.github.heroslender.hero_api.security.RequireAdminRole;
 import com.github.heroslender.hero_api.security.RequireDeveloperRole;
 import com.github.heroslender.hero_api.service.PluginLicenceService;
+import com.github.heroslender.hero_api.service.PluginResourceStorageService;
 import com.github.heroslender.hero_api.service.PluginService;
-import com.github.heroslender.hero_api.service.PluginThumbnailStorageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
@@ -24,8 +23,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,7 +31,7 @@ import java.util.List;
 public class PluginController {
     private final PluginService service;
     private final PluginLicenceService licenceService;
-    private final PluginThumbnailStorageService thumbnailService;
+    private final PluginResourceStorageService resourceStorageService;
     private final PluginAssembler assembler;
 
     @GetMapping("/plugins")
@@ -75,12 +72,10 @@ public class PluginController {
     public ResponseEntity<byte[]> getPluginThumbnail(@PathVariable String id) {
         service.getPlugin(id);
 
-        try {
-            byte[] bytes = Files.readAllBytes(thumbnailService.load(id + ".jpg"));
-            return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).body(bytes);
-        } catch (IOException e) {
-            throw new ResourceNotFoundException("Plugin thumbnail not found.");
-        }
+        return ResponseEntity
+                .ok()
+                .contentType(MediaType.IMAGE_JPEG)
+                .body(resourceStorageService.getThumbnail(id));
     }
 
     @PostMapping("/plugins/{id}/thumbnail")
@@ -95,7 +90,7 @@ public class PluginController {
             throw new ForbiddenException("You are not the owner of this plugin.");
         }
 
-        thumbnailService.store(id + ".jpg", file);
+        resourceStorageService.storeThumbnail(id, file);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)

@@ -14,7 +14,7 @@ public class StorageProperties {
 	 */
 	@Getter
 	@Setter
-	private String location = "upload-dir";
+	private String versionsLocation = "versions";
 
 
 	/**

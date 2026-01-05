@@ -5,9 +5,8 @@ import com.github.heroslender.hero_api.exceptions.PluginVersionNotFoundException
 import com.github.heroslender.hero_api.exceptions.StorageFileNotFoundException;
 import com.github.heroslender.hero_api.model.Plugin;
 import com.github.heroslender.hero_api.model.PluginVersion;
-import com.github.heroslender.hero_api.model.PluginVisibility;
+import com.github.heroslender.hero_api.service.PluginResourceStorageService;
 import com.github.heroslender.hero_api.service.PluginService;
-import com.github.heroslender.hero_api.service.PluginVersionStorageService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -35,14 +34,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class PluginVersionControllerTest {
     private static final String PLUGIN_NAME = "crates";
     private static final String PLUGIN_VERSION = "v1.0";
-    private static final String PLUGIN_VERSION_FILE = PLUGIN_NAME + "-" + PLUGIN_VERSION + ".jar";
+    //    private static final String PLUGIN_VERSION_FILE = PLUGIN_NAME + "-" + PLUGIN_VERSION + ".jar";
     private static final String BASE_PATH = "/plugins/" + PLUGIN_NAME + "/versions/" + PLUGIN_VERSION;
     private static final Plugin PLUGIN = new Plugin(PLUGIN_NAME, 99);
 
     @Autowired
     private MockMvc mvc;
     @MockitoBean
-    private PluginVersionStorageService storageService;
+    private PluginResourceStorageService storageService;
     @MockitoBean
     private PluginService service;
 
@@ -123,7 +122,7 @@ class PluginVersionControllerTest {
         this.mvc.perform(multipart(BASE_PATH + "/upload").file(multipartFile).with(MOCK_USER_REQ))
                 .andExpect(status().isCreated());
 
-        then(this.storageService).should().store(PLUGIN_VERSION_FILE, multipartFile);
+        then(this.storageService).should().storeVersion(PLUGIN_NAME, PLUGIN_VERSION, multipartFile);
     }
 
     @Test
@@ -146,7 +145,7 @@ class PluginVersionControllerTest {
 
         given(this.service.getPlugin(PLUGIN_NAME))
                 .willReturn(PLUGIN);
-        given(this.storageService.loadAsResource(PLUGIN_VERSION_FILE))
+        given(this.storageService.getVersion(PLUGIN_NAME, PLUGIN_VERSION))
                 .willReturn(new UrlResource(file.toURI()));
 
         this.mvc.perform(get(BASE_PATH + "/download"))
@@ -158,7 +157,7 @@ class PluginVersionControllerTest {
     void should404WhenMissingFile() throws Exception {
         given(this.service.getPlugin(PLUGIN_NAME))
                 .willReturn(PLUGIN);
-        given(this.storageService.loadAsResource(PLUGIN_VERSION_FILE))
+        given(this.storageService.getVersion(PLUGIN_NAME, PLUGIN_VERSION))
                 .willThrow(StorageFileNotFoundException.class);
 
         this.mvc.perform(get(BASE_PATH + "/download"))

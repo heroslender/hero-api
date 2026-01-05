@@ -11,8 +11,8 @@ import com.github.heroslender.hero_api.model.PluginVersion;
 import com.github.heroslender.hero_api.model.UserRole;
 import com.github.heroslender.hero_api.security.RequireDeveloperRole;
 import com.github.heroslender.hero_api.service.PluginLicenceService;
+import com.github.heroslender.hero_api.service.PluginResourceStorageService;
 import com.github.heroslender.hero_api.service.PluginService;
-import com.github.heroslender.hero_api.service.PluginVersionStorageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.hateoas.CollectionModel;
@@ -26,14 +26,13 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Locale;
 
 @RestController
 @RequestMapping("/plugins/{pluginId}/versions")
 @RequiredArgsConstructor
 public class PluginVersionController {
     private final PluginService service;
-    private final PluginVersionStorageService storageService;
+    private final PluginResourceStorageService resourceStorageService;
     private final PluginLicenceService licenceService;
     private final PluginVersionAssembler pluginVersionAssembler;
 
@@ -111,8 +110,7 @@ public class PluginVersionController {
         Plugin plugin = service.getPlugin(pluginId);
         licenceService.checkUserAccessToPlugin(user, plugin);
 
-        String filename = buildFilename(pluginId, version);
-        Resource file = storageService.loadAsResource(filename);
+        Resource file = resourceStorageService.getVersion(pluginId, version);
 
         if (file == null)
             return ResponseEntity.notFound().build();
@@ -134,15 +132,10 @@ public class PluginVersionController {
             throw new ForbiddenException("You are not the owner of this plugin.");
         }
 
-        String filename = buildFilename(pluginId, version);
-        storageService.store(filename, file);
+        resourceStorageService.storeVersion(pluginId, version, file);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .build();
-    }
-
-    private String buildFilename(String pluginId, String versionTag) {
-        return pluginId.toLowerCase(Locale.ROOT) + "-" + versionTag + ".jar";
     }
 }
