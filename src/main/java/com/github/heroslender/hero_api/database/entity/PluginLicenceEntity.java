@@ -9,16 +9,17 @@ import lombok.Setter;
 import java.util.Objects;
 import java.util.UUID;
 
-@Entity
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Entity(name = "plugin_licences")
 public class PluginLicenceEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @Column(nullable = false)
     private Long createdAt;
     private Long duration;
 

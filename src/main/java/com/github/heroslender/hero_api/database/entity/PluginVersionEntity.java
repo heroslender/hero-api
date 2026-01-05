@@ -5,26 +5,31 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.ColumnDefault;
 
 import java.util.Objects;
 
-@Entity
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Entity(name = "plugin_versions")
 public class PluginVersionEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "plugin_id")
+    @JoinColumn(name = "plugin_id", nullable = false)
     private PluginEntity plugin;
+    @Column(nullable = false)
     private String tag;
+    @Column(nullable = false)
     private Long releasedAt;
     private String releaseTitle;
     private String releaseNotes;
+    @ColumnDefault("0")
+    @Column(nullable = false)
     private Integer downloadCount;
 
     public PluginVersionEntity(PluginEntity plugin, String tag, Long releasedAt, String releaseTitle, String releaseNotes, Integer downloadCount) {
