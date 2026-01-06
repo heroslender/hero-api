@@ -37,6 +37,8 @@ public class PluginEntity {
     private Float price;
     private Float promoPrice;
     private String tagline;
+    @Lob
+    @Column(length = 65536)
     private String description;
 
     @OneToMany(mappedBy = "plugin", fetch = FetchType.LAZY)
