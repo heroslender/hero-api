@@ -85,12 +85,12 @@ public class PluginService {
      * @return The saved plugin
      */
     @CacheEvict(value = "plugin-list", allEntries = true)
-    @CachePut(value = "plugins", key = "#request.name")
+    @CachePut(value = "plugins", key = "#request.id")
     public Plugin newPlugin(CreatePluginRequest request, UserEntity owner) {
-        log.info("Saving plugin with ID '{}'", request.name());
+        log.info("Saving plugin with ID '{}'", request.id());
         PluginEntity entity = new PluginEntity();
-        entity.setId(request.name());
-        entity.setName(request.displayName());
+        entity.setId(request.id());
+        entity.setName(request.name());
         entity.setOwner(owner);
         entity.setVisibility(request.visibility());
         entity.setPrice(request.price());
@@ -116,8 +116,8 @@ public class PluginService {
         log.info("Updating plugin with ID '{}'", plugin.id());
         PluginEntity entity = fromDto(plugin);
 
-        if (request.displayName() != null) {
-            entity.setName(request.displayName());
+        if (request.name() != null) {
+            entity.setName(request.name());
         }
         if (request.visibility() != null) {
             entity.setVisibility(request.visibility());
