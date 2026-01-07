@@ -13,9 +13,12 @@ import com.github.heroslender.hero_api.exceptions.PluginVersionNotFoundException
 import com.github.heroslender.hero_api.model.Plugin;
 import com.github.heroslender.hero_api.model.PluginVersion;
 import jakarta.persistence.EntityManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 import java.time.Clock;
@@ -29,6 +32,8 @@ public class PluginService {
     private final PluginVersionRepository pluginVersionRepository;
     private final Clock clock;
     private final EntityManager entityManager;
+
+    private final Logger log = LoggerFactory.getLogger(PluginService.class);
 
     public PluginService(PluginRepository pluginRepository, PluginVersionRepository pluginVersionRepository, Clock clock, EntityManager entityManager) {
         this.self = this;
@@ -45,6 +50,7 @@ public class PluginService {
      */
     @Cacheable("plugin-list")
     public List<Plugin> getPlugins() {
+        log.info("Getting all plugins");
         return pluginRepository.findAll().stream().map(this::toDto).toList();
     }
 
@@ -57,7 +63,7 @@ public class PluginService {
      */
     @Cacheable(value = "plugins", key = "#id")
     public Plugin getPlugin(String id) {
-        System.out.println("GetPlugin");
+        log.info("Getting plugin with ID '{}'", id);
         return getPluginOpt(id).orElseThrow(() -> new PluginNotFoundException(id));
     }
 
@@ -79,7 +85,9 @@ public class PluginService {
      * @return The saved plugin
      */
     @CacheEvict(value = "plugin-list", allEntries = true)
+    @CachePut(value = "plugins", key = "#request.name")
     public Plugin newPlugin(CreatePluginRequest request, UserEntity owner) {
+        log.info("Saving plugin with ID '{}'", request.name());
         PluginEntity entity = new PluginEntity();
         entity.setId(request.name());
         entity.setName(request.displayName());
@@ -105,7 +113,7 @@ public class PluginService {
     @CacheEvict(value = "plugin-list", allEntries = true)
     @CachePut(value = "plugins", key = "#plugin.id")
     public Plugin update(Plugin plugin, UpdatePluginRequest request) {
-        System.out.println("updatePlugin");
+        log.info("Updating plugin with ID '{}'", plugin.id());
         PluginEntity entity = fromDto(plugin);
 
         if (request.displayName() != null) {
@@ -161,7 +169,12 @@ public class PluginService {
      *
      * @param id The ID of the plugin
      */
+    @Caching(evict = {
+            @CacheEvict(value = "plugin-list", allEntries = true),
+            @CacheEvict(value = "plugins", key = "#id")
+    })
     public void delete(String id) {
+        log.info("Deleting plugin with ID '{}'", id);
         pluginRepository.deleteById(id);
     }
 
