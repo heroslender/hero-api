@@ -12,9 +12,10 @@ import com.github.heroslender.hero_api.exceptions.PluginNotFoundException;
 import com.github.heroslender.hero_api.exceptions.PluginVersionNotFoundException;
 import com.github.heroslender.hero_api.model.Plugin;
 import com.github.heroslender.hero_api.model.PluginVersion;
-import com.github.heroslender.hero_api.model.PluginVisibility;
 import jakarta.persistence.EntityManager;
-import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.time.Clock;
@@ -22,18 +23,27 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor
 public class PluginService {
+    private final PluginService self;
     private final PluginRepository pluginRepository;
     private final PluginVersionRepository pluginVersionRepository;
     private final Clock clock;
     private final EntityManager entityManager;
+
+    public PluginService(PluginRepository pluginRepository, PluginVersionRepository pluginVersionRepository, Clock clock, EntityManager entityManager) {
+        this.self = this;
+        this.pluginRepository = pluginRepository;
+        this.pluginVersionRepository = pluginVersionRepository;
+        this.clock = clock;
+        this.entityManager = entityManager;
+    }
 
     /**
      * Get all plugins saved in the database.
      *
      * @return A list containing all stored plugins
      */
+    @Cacheable("plugin-list")
     public List<Plugin> getPlugins() {
         return pluginRepository.findAll().stream().map(this::toDto).toList();
     }
@@ -45,7 +55,9 @@ public class PluginService {
      * @return The requested plugin
      * @throws PluginNotFoundException If the plugin was not found
      */
+    @Cacheable(value = "plugins", key = "#id")
     public Plugin getPlugin(String id) {
+        System.out.println("GetPlugin");
         return getPluginOpt(id).orElseThrow(() -> new PluginNotFoundException(id));
     }
 
@@ -60,37 +72,24 @@ public class PluginService {
     }
 
     /**
-     * Save a new plugin to the database.
-     *
-     * @param request The plugin details to create
-     * @param owner   The user creating the plugin
-     * @return The new plugin
-     */
-    public Plugin newPlugin(CreatePluginRequest request, UserEntity owner) {
-        Plugin plugin = new Plugin(
-                request.name(),
-                request.displayName(),
-                owner.getId(),
-                PluginVisibility.PUBLIC,
-                request.price(),
-                null,
-                request.tagline(),
-                request.description()
-        );
-
-        return save(plugin, owner);
-    }
-
-    /**
      * Save a plugin to the database.
      *
-     * @param plugin The plugin to save
-     * @param owner  The owner of the plugin
+     * @param request The plugin details to save
+     * @param owner   The owner of the plugin
      * @return The saved plugin
      */
-    public Plugin save(Plugin plugin, UserEntity owner) {
-        PluginEntity entity = fromDto(plugin);
+    @CacheEvict(value = "plugin-list", allEntries = true)
+    public Plugin newPlugin(CreatePluginRequest request, UserEntity owner) {
+        PluginEntity entity = new PluginEntity();
+        entity.setId(request.name());
+        entity.setName(request.displayName());
         entity.setOwner(owner);
+        entity.setVisibility(request.visibility());
+        entity.setPrice(request.price());
+        entity.setPromoPrice(null);
+        entity.setTagline(request.tagline());
+        entity.setDescription(request.description());
+
         PluginEntity pl = pluginRepository.save(entity);
 
         return toDto(pl);
@@ -103,7 +102,10 @@ public class PluginService {
      * @param request The new data
      * @return The updated plugin
      */
+    @CacheEvict(value = "plugin-list", allEntries = true)
+    @CachePut(value = "plugins", key = "#plugin.id")
     public Plugin update(Plugin plugin, UpdatePluginRequest request) {
+        System.out.println("updatePlugin");
         PluginEntity entity = fromDto(plugin);
 
         if (request.displayName() != null) {
@@ -139,7 +141,7 @@ public class PluginService {
      * @throws PluginNotFoundException If the plugin was not found
      */
     public PluginVersion addVersion(String pluginId, String tag, CreatePluginVersionRequest request) {
-        getPlugin(pluginId);
+        self.getPlugin(pluginId);
 
         PluginVersion pluginVersion = new PluginVersion(
                 pluginId,

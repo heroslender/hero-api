@@ -4,6 +4,9 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.springframework.hateoas.server.core.Relation;
 
+import java.io.Serial;
+import java.io.Serializable;
+
 @Relation(collectionRelation = "plugins", itemRelation = "plugin")
 public record Plugin(
         @NonNull String id,
@@ -15,7 +18,9 @@ public record Plugin(
         String tagline,
         @JsonInclude(JsonInclude.Include.NON_NULL)
         String description
-) {
+) implements Serializable {
+    @Serial private static final long serialVersionUID = 1L;
+
     public Plugin(String id, long ownerId) {
         this(id, id, ownerId, PluginVisibility.PUBLIC, 0F, 0F, "", "");
     }

@@ -4,6 +4,7 @@ import com.github.heroslender.hero_api.database.entity.PluginEntity;
 import com.github.heroslender.hero_api.database.entity.PluginVersionEntity;
 import com.github.heroslender.hero_api.database.repository.PluginRepository;
 import com.github.heroslender.hero_api.database.repository.PluginVersionRepository;
+import com.github.heroslender.hero_api.dto.request.CreatePluginRequest;
 import com.github.heroslender.hero_api.dto.request.CreatePluginVersionRequest;
 import com.github.heroslender.hero_api.exceptions.PluginNotFoundException;
 import com.github.heroslender.hero_api.exceptions.PluginVersionNotFoundException;
@@ -80,7 +81,15 @@ class PluginServiceTest {
     void testSave() {
         when(repository.save(PUBLIC_PLUGIN_ENTITY)).thenReturn(PUBLIC_PLUGIN_ENTITY);
 
-        Plugin save = service.save(PUBLIC_PLUGIN, MOCK_USER);
+        CreatePluginRequest request = new CreatePluginRequest(
+                PUBLIC_PLUGIN.id(),
+                PUBLIC_PLUGIN.name(),
+                PUBLIC_PLUGIN.visibility(),
+                PUBLIC_PLUGIN.price(),
+                PUBLIC_PLUGIN.tagline(),
+                PUBLIC_PLUGIN.description()
+        );
+        Plugin save = service.newPlugin(request, MOCK_USER);
 
         assertThat(save.id()).isEqualTo(PUBLIC_PLUGIN.id());
         verify(repository).save(PUBLIC_PLUGIN_ENTITY);

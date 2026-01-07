@@ -21,7 +21,7 @@ public class MockData {
             MOCK_USER,
             PluginVisibility.PUBLIC,
             0.0F,
-            0.0F,
+            null,
             "",
             "",
             Collections.emptyList()
