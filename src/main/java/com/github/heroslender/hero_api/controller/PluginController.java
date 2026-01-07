@@ -70,8 +70,6 @@ public class PluginController {
 
     @GetMapping("/plugins/{id}/thumbnail")
     public ResponseEntity<byte[]> getPluginThumbnail(@PathVariable String id) {
-        service.getPlugin(id);
-
         return ResponseEntity
                 .ok()
                 .contentType(MediaType.IMAGE_JPEG)
