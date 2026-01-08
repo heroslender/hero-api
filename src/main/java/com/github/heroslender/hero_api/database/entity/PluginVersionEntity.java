@@ -27,6 +27,7 @@ public class PluginVersionEntity {
     @Column(nullable = false)
     private Long releasedAt;
     private String releaseTitle;
+    @Column(length = 65536)
     private String releaseNotes;
     @ColumnDefault("0")
     @Column(nullable = false)
