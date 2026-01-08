@@ -7,6 +7,7 @@ import com.github.heroslender.hero_api.model.Plugin;
 import com.github.heroslender.hero_api.model.PluginVersion;
 import com.github.heroslender.hero_api.service.PluginResourceStorageService;
 import com.github.heroslender.hero_api.service.PluginService;
+import com.github.heroslender.hero_api.service.PluginVersionService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -34,7 +35,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class PluginVersionControllerTest {
     private static final String PLUGIN_NAME = "crates";
     private static final String PLUGIN_VERSION = "v1.0";
-    //    private static final String PLUGIN_VERSION_FILE = PLUGIN_NAME + "-" + PLUGIN_VERSION + ".jar";
     private static final String BASE_PATH = "/plugins/" + PLUGIN_NAME + "/versions/" + PLUGIN_VERSION;
     private static final Plugin PLUGIN = new Plugin(PLUGIN_NAME, 99);
 
@@ -43,12 +43,12 @@ class PluginVersionControllerTest {
     @MockitoBean
     private PluginResourceStorageService storageService;
     @MockitoBean
-    private PluginService service;
+    private PluginVersionService service;
+    @MockitoBean
+    private PluginService pluginService;
 
     @Test
     void shouldGiveVersionList() throws Exception {
-        given(this.service.getPlugin(PLUGIN_NAME))
-                .willReturn(PLUGIN);
         given(this.service.getVersions(PLUGIN_NAME))
                 .willReturn(Collections.emptyList());
 
@@ -83,7 +83,7 @@ class PluginVersionControllerTest {
                 0
         );
 
-        given(this.service.getPlugin(PLUGIN_NAME))
+        given(this.pluginService.getPlugin(PLUGIN_NAME))
                 .willReturn(new Plugin(PLUGIN_NAME, MOCK_USER.getId()));
         given(this.service.getVersion(PLUGIN_NAME, PLUGIN_VERSION))
                 .willThrow(new PluginVersionNotFoundException(PLUGIN_VERSION));
@@ -101,7 +101,7 @@ class PluginVersionControllerTest {
 
     @Test
     void shouldDenyNewVersionForNonOwners() throws Exception {
-        given(this.service.getPlugin(PLUGIN_NAME))
+        given(this.pluginService.getPlugin(PLUGIN_NAME))
                 .willReturn(PLUGIN);
 
         this.mvc.perform(post(BASE_PATH)
@@ -116,7 +116,7 @@ class PluginVersionControllerTest {
         MockMultipartFile multipartFile = new MockMultipartFile("file", "test.txt",
                 "text/plain", "Spring Framework".getBytes());
 
-        given(this.service.getPlugin(PLUGIN_NAME))
+        given(this.pluginService.getPlugin(PLUGIN_NAME))
                 .willReturn(new Plugin(PLUGIN_NAME, MOCK_USER.getId()));
 
         this.mvc.perform(multipart(BASE_PATH + "/upload").file(multipartFile).with(MOCK_USER_REQ))
@@ -130,7 +130,7 @@ class PluginVersionControllerTest {
         MockMultipartFile multipartFile = new MockMultipartFile("file", "test.txt",
                 "text/plain", "Spring Framework".getBytes());
 
-        given(this.service.getPlugin(PLUGIN_NAME))
+        given(this.pluginService.getPlugin(PLUGIN_NAME))
                 .willReturn(PLUGIN);
 
         this.mvc.perform(multipart(BASE_PATH + "/upload").file(multipartFile).with(MOCK_USER_REQ))
@@ -143,7 +143,7 @@ class PluginVersionControllerTest {
     void shouldDownloadFile() throws Exception {
         File file = File.createTempFile("file", null);
 
-        given(this.service.getPlugin(PLUGIN_NAME))
+        given(this.pluginService.getPlugin(PLUGIN_NAME))
                 .willReturn(PLUGIN);
         given(this.storageService.getVersion(PLUGIN_NAME, PLUGIN_VERSION))
                 .willReturn(new UrlResource(file.toURI()));
@@ -155,7 +155,7 @@ class PluginVersionControllerTest {
 
     @Test
     void should404WhenMissingFile() throws Exception {
-        given(this.service.getPlugin(PLUGIN_NAME))
+        given(this.pluginService.getPlugin(PLUGIN_NAME))
                 .willReturn(PLUGIN);
         given(this.storageService.getVersion(PLUGIN_NAME, PLUGIN_VERSION))
                 .willThrow(StorageFileNotFoundException.class);

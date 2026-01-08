@@ -1,17 +1,12 @@
 package com.github.heroslender.hero_api.service;
 
 import com.github.heroslender.hero_api.database.entity.PluginEntity;
-import com.github.heroslender.hero_api.database.entity.PluginVersionEntity;
 import com.github.heroslender.hero_api.database.entity.UserEntity;
 import com.github.heroslender.hero_api.database.repository.PluginRepository;
-import com.github.heroslender.hero_api.database.repository.PluginVersionRepository;
 import com.github.heroslender.hero_api.dto.request.CreatePluginRequest;
-import com.github.heroslender.hero_api.dto.request.CreatePluginVersionRequest;
 import com.github.heroslender.hero_api.dto.request.UpdatePluginRequest;
 import com.github.heroslender.hero_api.exceptions.PluginNotFoundException;
-import com.github.heroslender.hero_api.exceptions.PluginVersionNotFoundException;
 import com.github.heroslender.hero_api.model.Plugin;
-import com.github.heroslender.hero_api.model.PluginVersion;
 import jakarta.persistence.EntityManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,26 +16,22 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
-import java.time.Clock;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class PluginService {
-    private final PluginService self;
     private final PluginRepository pluginRepository;
-    private final PluginVersionRepository pluginVersionRepository;
-    private final Clock clock;
     private final EntityManager entityManager;
+    private final PluginService self;
 
     private final Logger log = LoggerFactory.getLogger(PluginService.class);
 
-    public PluginService(PluginRepository pluginRepository, PluginVersionRepository pluginVersionRepository, Clock clock, EntityManager entityManager) {
-        this.self = this;
+    public PluginService(PluginRepository pluginRepository, EntityManager entityManager) {
         this.pluginRepository = pluginRepository;
-        this.pluginVersionRepository = pluginVersionRepository;
-        this.clock = clock;
         this.entityManager = entityManager;
+
+        self = this;
     }
 
     /**
@@ -65,6 +56,16 @@ public class PluginService {
     public Plugin getPlugin(String id) {
         log.info("Getting plugin with ID '{}'", id);
         return getPluginOpt(id).orElseThrow(() -> new PluginNotFoundException(id));
+    }
+
+    /**
+     * Test if a plugin exists in the database or else throw an exception.
+     *
+     * @param id The ID of the plugin
+     * @throws PluginNotFoundException If the plugin was not found
+     */
+    public void testPluginExists(String id) {
+        self.getPlugin(id);
     }
 
     /**
@@ -140,31 +141,6 @@ public class PluginService {
     }
 
     /**
-     * Add a version to a plugin.
-     *
-     * @param pluginId The plugin that will get the new version
-     * @param tag      The version tag
-     * @param request  The version data
-     * @return The added plugin version
-     * @throws PluginNotFoundException If the plugin was not found
-     */
-    public PluginVersion addVersion(String pluginId, String tag, CreatePluginVersionRequest request) {
-        self.getPlugin(pluginId);
-
-        PluginVersion pluginVersion = new PluginVersion(
-                pluginId,
-                tag,
-                clock.millis(),
-                request.releaseTitle(),
-                request.releaseNotes(),
-                0
-        );
-
-        PluginVersionEntity saved = pluginVersionRepository.save(fromDto(pluginVersion));
-        return toDto(saved);
-    }
-
-    /**
      * Delete a plugin from the database.
      *
      * @param id The ID of the plugin
@@ -176,44 +152,6 @@ public class PluginService {
     public void delete(String id) {
         log.info("Deleting plugin with ID '{}'", id);
         pluginRepository.deleteById(id);
-    }
-
-    /**
-     * Get all versions for a plugin.
-     *
-     * @param pluginId The plugin to get the versions from
-     * @return A list containing all versions
-     * @throws PluginNotFoundException If the plugin was not found
-     */
-    public List<PluginVersion> getVersions(String pluginId) {
-        PluginEntity pl = pluginRepository.findById(pluginId).orElseThrow(() -> new PluginNotFoundException(pluginId));
-
-        return pl.getVersions().stream().map(this::toDto).toList();
-    }
-
-    /**
-     * Get a specific version for a plugin
-     *
-     * @param pluginId   The ID of the plugin
-     * @param versionTag The desired version tag
-     * @return The requested version
-     * @throws PluginNotFoundException        If the plugin was not found
-     * @throws PluginVersionNotFoundException If the requested version was not found
-     */
-    public PluginVersion getVersion(String pluginId, String versionTag) {
-        List<PluginVersion> versions = getVersions(pluginId);
-
-        for (PluginVersion version : versions) {
-            if (version.tag().equals(versionTag)) {
-                return version;
-            }
-        }
-
-        throw new PluginVersionNotFoundException(versionTag);
-    }
-
-    public void deleteVersion(long version) {
-        pluginVersionRepository.deleteById(version);
     }
 
 
@@ -241,30 +179,6 @@ public class PluginService {
                 dto.tagline(),
                 dto.description(),
                 null
-        );
-    }
-
-    public PluginVersion toDto(PluginVersionEntity version) {
-        return new PluginVersion(
-                version.getId(),
-                version.getPlugin().getId(),
-                version.getTag(),
-                version.getReleasedAt(),
-                version.getReleaseTitle(),
-                version.getReleaseNotes(),
-                version.getDownloadCount()
-        );
-    }
-
-    public PluginVersionEntity fromDto(PluginVersion dto) {
-        return new PluginVersionEntity(
-                dto.id(),
-                entityManager.getReference(PluginEntity.class, dto.pluginId()),
-                dto.tag(),
-                dto.releasedAt(),
-                dto.releaseTitle(),
-                dto.releaseNotes(),
-                dto.downloadCount()
         );
     }
 }

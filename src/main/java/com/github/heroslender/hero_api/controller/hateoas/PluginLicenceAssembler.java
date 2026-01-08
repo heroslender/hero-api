@@ -3,7 +3,6 @@ package com.github.heroslender.hero_api.controller.hateoas;
 import com.github.heroslender.hero_api.controller.PluginController;
 import com.github.heroslender.hero_api.controller.PluginVersionController;
 import com.github.heroslender.hero_api.model.PluginLicence;
-import com.github.heroslender.hero_api.model.PluginVersion;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
@@ -22,7 +21,7 @@ public class PluginLicenceAssembler implements RepresentationModelAssembler<Plug
     @Override
     public EntityModel<PluginLicence> toModel(PluginLicence entity) {
         return EntityModel.of(entity,
-                linkTo(methodOn(PluginVersionController.class).versions(null, entity.pluginId())).withRel("versions"),
+                linkTo(methodOn(PluginVersionController.class).versions(entity.pluginId())).withRel("versions"),
                 linkTo(methodOn(PluginController.class).plugin(null, entity.pluginId())).withRel("plugin")
         );
     }

@@ -13,6 +13,7 @@ import com.github.heroslender.hero_api.security.RequireDeveloperRole;
 import com.github.heroslender.hero_api.service.PluginLicenceService;
 import com.github.heroslender.hero_api.service.PluginResourceStorageService;
 import com.github.heroslender.hero_api.service.PluginService;
+import com.github.heroslender.hero_api.service.PluginVersionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.hateoas.CollectionModel;
@@ -31,19 +32,16 @@ import java.util.List;
 @RequestMapping("/plugins/{pluginId}/versions")
 @RequiredArgsConstructor
 public class PluginVersionController {
-    private final PluginService service;
+    private final PluginVersionService service;
+    private final PluginService pluginService;
     private final PluginResourceStorageService resourceStorageService;
     private final PluginLicenceService licenceService;
     private final PluginVersionAssembler pluginVersionAssembler;
 
     @GetMapping
     public CollectionModel<EntityModel<PluginVersion>> versions(
-            @AuthenticationPrincipal UserEntity user,
             @PathVariable String pluginId
     ) {
-        Plugin plugin = service.getPlugin(pluginId);
-        licenceService.checkUserAccessToPlugin(user, plugin);
-
         List<PluginVersion> versions = service.getVersions(pluginId);
 
         return pluginVersionAssembler.toCollectionModel(versions);
@@ -64,7 +62,7 @@ public class PluginVersionController {
             @PathVariable String version,
             @RequestBody CreatePluginVersionRequest request
     ) {
-        Plugin plugin = service.getPlugin(pluginId);
+        Plugin plugin = pluginService.getPlugin(pluginId);
         if (plugin.ownerId() != user.getId() && !user.hasRole(UserRole.ADMIN)) {
             throw new ForbiddenException("You are not the owner of this plugin.");
         }
@@ -90,7 +88,7 @@ public class PluginVersionController {
             @PathVariable String pluginId,
             @PathVariable String version
     ) {
-        Plugin plugin = service.getPlugin(pluginId);
+        Plugin plugin = pluginService.getPlugin(pluginId);
         if (plugin.ownerId() != user.getId() && !user.hasRole(UserRole.ADMIN)) {
             throw new ForbiddenException("You are not the owner of this plugin.");
         }
@@ -107,7 +105,7 @@ public class PluginVersionController {
             @PathVariable String pluginId,
             @PathVariable String version
     ) {
-        Plugin plugin = service.getPlugin(pluginId);
+        Plugin plugin = pluginService.getPlugin(pluginId);
         licenceService.checkUserAccessToPlugin(user, plugin);
 
         Resource file = resourceStorageService.getVersion(pluginId, version);
@@ -127,7 +125,7 @@ public class PluginVersionController {
             @PathVariable String version,
             @RequestParam("file") MultipartFile file
     ) {
-        Plugin plugin = service.getPlugin(pluginId);
+        Plugin plugin = pluginService.getPlugin(pluginId);
         if (plugin.ownerId() != user.getId() && !user.hasRole(UserRole.ADMIN)) {
             throw new ForbiddenException("You are not the owner of this plugin.");
         }
