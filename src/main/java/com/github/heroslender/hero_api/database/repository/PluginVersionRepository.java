@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface PluginVersionRepository extends JpaRepository<PluginVersionEntity, Long> {
 
-    List<PluginVersionEntity> findByPluginId(String pluginId);
+    List<PluginVersionEntity> findByPluginIdOrderByReleasedAtDesc(String pluginId);
 }

@@ -50,7 +50,7 @@ class PluginVersionServiceTest {
 
     @Test
     void testGetVersion() {
-        when(versionRepository.findByPluginId(PUBLIC_PLUGIN_ID)).thenReturn(PUBLIC_PLUGIN_ENTITY.getVersions());
+        when(versionRepository.findByPluginIdOrderByReleasedAtDesc(PUBLIC_PLUGIN_ID)).thenReturn(PUBLIC_PLUGIN_ENTITY.getVersions());
 
         PluginVersion version = service.getVersion(PUBLIC_PLUGIN_ID, "v1.0");
 
@@ -62,11 +62,11 @@ class PluginVersionServiceTest {
 
     @Test
     void testGetVersions() {
-        when(versionRepository.findByPluginId(PUBLIC_PLUGIN_ID)).thenReturn(PUBLIC_PLUGIN_ENTITY.getVersions());
+        when(versionRepository.findByPluginIdOrderByReleasedAtDesc(PUBLIC_PLUGIN_ID)).thenReturn(PUBLIC_PLUGIN_ENTITY.getVersions());
 
         List<PluginVersion> versions = service.getVersions(PUBLIC_PLUGIN_ID);
 
         assertThat(versions).isNotEmpty();
-        verify(versionRepository).findByPluginId(PUBLIC_PLUGIN_ID);
+        verify(versionRepository).findByPluginIdOrderByReleasedAtDesc(PUBLIC_PLUGIN_ID);
     }
 }

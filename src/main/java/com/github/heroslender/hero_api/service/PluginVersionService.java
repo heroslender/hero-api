@@ -52,7 +52,7 @@ public class PluginVersionService {
         log.info("Getting versions for plugin with ID '{}'", pluginId);
         pluginService.testPluginExists(pluginId);
 
-        return repository.findByPluginId(pluginId).stream().map(this::toDto).toList();
+        return repository.findByPluginIdOrderByReleasedAtDesc(pluginId).stream().map(this::toDto).toList();
     }
 
     /**
